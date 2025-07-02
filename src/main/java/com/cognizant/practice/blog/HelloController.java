@@ -11,7 +11,7 @@ public class HelloController {
 
     @GetMapping
     public String helloPrint() {
-        return "Hello World";
+        return "Hello World!";
     }
 
     @GetMapping("/{name}")
