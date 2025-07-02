@@ -16,6 +16,6 @@ public class HelloController {
 
     @GetMapping("/{name}")
     public String helloPrint2(@PathVariable String name) {
-        return "Hello " + name;
+        return "Hello!" + name;
     }
 }
