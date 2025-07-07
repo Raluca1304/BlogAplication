@@ -40,7 +40,7 @@ public class ArticlesController {
 
     // Delete an article with a specific id
     @DeleteMapping(value = "/articles/{id}")
-    public void deleteArticleById(@PathVariable UUID id) {
+    public void deleteArticleByID(@PathVariable UUID id) {
         articleService.deleteArticleById(id);
     }
 
