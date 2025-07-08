@@ -1,28 +1,31 @@
-package com.cognizant.practice.blog.model;
+package com.cognizant.practice.blog.comments.model;
 
+import com.cognizant.practice.blog.articles.model.ArticleDto;
+import com.cognizant.practice.blog.articles.model.ArticleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
-@Table(name = "ARTICLES")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Article {
+@Table(name = "COMMENTS")
+public class CommentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    private String title;
-
-    private String content;
+    private String text;
 
     private LocalDateTime createdDate;
 
-    private LocalDateTime updatedDate;
+    @ManyToOne()
+    private ArticleEntity article;
+
 }

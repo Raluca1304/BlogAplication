@@ -1,0 +1,42 @@
+package com.cognizant.practice.blog.articles.model;
+
+import com.cognizant.practice.blog.comments.model.CommentDto;
+import com.cognizant.practice.blog.comments.model.CommentEntity;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@Entity
+@Table(name = "ARTICLES")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ArticleEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
+
+    private String title;
+
+    private String content;
+
+    private LocalDateTime createdDate;
+
+    private LocalDateTime updatedDate;
+
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommentEntity> comments;
+
+    public ArticleEntity(UUID id, String title, String content, LocalDateTime createdDate, LocalDateTime updatedDate) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.createdDate = createdDate;
+        this.updatedDate = updatedDate;
+    }
+}
