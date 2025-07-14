@@ -5,6 +5,7 @@ import com.cognizant.practice.blog.comments.model.CommentDto;
 import com.cognizant.practice.blog.comments.model.CommentEntity;
 import com.cognizant.practice.blog.comments.model.CommentRequest;
 import com.cognizant.practice.blog.comments.repository.CommentRepository;
+import com.cognizant.practice.blog.users.model.UserEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -34,7 +35,7 @@ public class CommentService {
 
     public CommentDto createNewComment(CommentRequest commentRequest, UUID id) {
         CommentEntity newComment = new CommentEntity(null, commentRequest.text(), LocalDateTime.now(),
-                articleRepository.findById(id).get());
+                articleRepository.findById(id).get(), null);
         CommentEntity savedComment = commentRepository.save(newComment);
         return new CommentDto(
                 savedComment.getId(),

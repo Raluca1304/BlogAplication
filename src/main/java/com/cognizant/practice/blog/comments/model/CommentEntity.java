@@ -2,6 +2,7 @@ package com.cognizant.practice.blog.comments.model;
 
 import com.cognizant.practice.blog.articles.model.ArticleDto;
 import com.cognizant.practice.blog.articles.model.ArticleEntity;
+import com.cognizant.practice.blog.users.model.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,7 +26,11 @@ public class CommentEntity {
 
     private LocalDateTime createdDate;
 
-    @ManyToOne()
+    @ManyToOne
     private ArticleEntity article;
+
+    @ManyToOne
+    private UserEntity author;
+
 
 }

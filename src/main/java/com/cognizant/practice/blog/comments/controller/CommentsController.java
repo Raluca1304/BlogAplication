@@ -25,14 +25,14 @@ public class CommentsController {
         this.commentService = commentService;
     }
 
-    private CommentDto verifyExistingArticle(UUID id) {
+    private CommentDto verifyExistingCommentInArticle(UUID id) {
         return commentService.getAllComments(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping(value = "/articles/{id}/comments")
     public Optional<CommentDto> getAllComments(@PathVariable UUID id) {
-        verifyExistingArticle(id);
+        verifyExistingCommentInArticle(id);
         return commentService.getAllComments(id);
     }
 
@@ -42,7 +42,7 @@ public class CommentsController {
         if (commentRequest.text() == null || commentRequest.text().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        verifyExistingArticle(id);
+        verifyExistingCommentInArticle(id);
         return commentService.createNewComment(commentRequest, id);
     }
 }

@@ -4,6 +4,9 @@ import com.cognizant.practice.blog.articles.model.ArticleDto;
 import com.cognizant.practice.blog.articles.model.ArticleEntity;
 import com.cognizant.practice.blog.articles.model.ArticleRequest;
 import com.cognizant.practice.blog.articles.repository.ArticleRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,6 +39,67 @@ public class ArticleService {
                 .collect(Collectors.toList());
     }
 
+    public List<ArticleDto> getAllArticlesWithLimits(Pageable pageable, String title) {
+        return articleRepository.findAll(pageable).stream()
+                .map(article -> new ArticleDto(
+                        article.getId(),
+                        article.getTitle(),
+                        article.getContent(),
+                        article.getCreatedDate(),
+                        article.getUpdatedDate()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<ArticleDto> getFilteredArticles(Pageable pageable, String titleFilter, String authorFilter) {
+
+
+        if (titleFilter != null && authorFilter != null) {
+            return articleRepository.findAllByTitleAndAuthor(
+                    titleFilter, authorFilter, pageable).stream().map(
+                            article -> new ArticleDto(
+                                    article.getId(),
+                                    article.getTitle(),
+                                    article.getContent(),
+                                    article.getCreatedDate(),
+                                    article.getUpdatedDate()
+                            ))
+                    .collect(Collectors.toList());
+        } else if (titleFilter != null) {
+            return articleRepository.findAllByTitle(
+                            titleFilter,pageable).stream().map(
+                            article -> new ArticleDto(
+                                    article.getId(),
+                                    article.getTitle(),
+                                    article.getContent(),
+                                    article.getCreatedDate(),
+                                    article.getUpdatedDate()
+                            ))
+                    .collect(Collectors.toList());
+        } else if (authorFilter != null) {
+            return articleRepository.findAllByAuthor(
+                           authorFilter, pageable).stream().map(
+                            article -> new ArticleDto(
+                                    article.getId(),
+                                    article.getTitle(),
+                                    article.getContent(),
+                                    article.getCreatedDate(),
+                                    article.getUpdatedDate()
+                            ))
+                    .collect(Collectors.toList());
+        } else {
+            return articleRepository.findAll(pageable).stream()
+                    .map(article -> new ArticleDto(
+                            article.getId(),
+                            article.getTitle(),
+                            article.getContent(),
+                            article.getCreatedDate(),
+                            article.getUpdatedDate()
+                    ))
+                    .collect(Collectors.toList());
+        }
+    }
+
     // Get method on a specific article
     public Optional<ArticleDto> getArticlesById(UUID id) {
         Optional<ArticleEntity> article = articleRepository.findById(id);
@@ -53,6 +117,7 @@ public class ArticleService {
     public void deleteArticleById(UUID id) {
         articleRepository.deleteById(id);
     }
+
 
     // Create an article
     public ArticleDto createNewArticles(ArticleRequest articleRequest) {
@@ -83,4 +148,6 @@ public class ArticleService {
         );
     }
 }
+
+
 

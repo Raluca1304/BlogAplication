@@ -1,10 +1,13 @@
 package com.cognizant.practice.blog.articles.controller;
 
 import com.cognizant.practice.blog.articles.model.ArticleDto;
-import com.cognizant.practice.blog.articles.model.ArticleEntity;
 import com.cognizant.practice.blog.articles.model.ArticleRequest;
 import com.cognizant.practice.blog.articles.service.ArticleService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,12 +28,34 @@ public class ArticlesController {
         return articleService.getArticlesById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
+
     // Return all articles from array
     // Read
-    @GetMapping(value = "/articles")
-    public List<ArticleDto> getAllArticles() {
-        return articleService.getAllArticles();
+
+    // Read
+//    @GetMapping(value = "/articles")
+//    public List<ArticleDto> getAllArticles() {
+//        return articleService.getAllArticles();
+//    }
+
+    @GetMapping("/articles")
+    public List<ArticleDto> getAllArticles(
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "createdDate") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String author
+    ) {
+        Sort sort = sortDirection.equalsIgnoreCase("desc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(from, limit, sort);
+        return articleService.getFilteredArticles(pageable, title, author);
     }
+
+
 
     // Return a specific article by an unique id
     // Read
@@ -48,6 +73,7 @@ public class ArticlesController {
         articleService.deleteArticleById(id);
     }
 
+
     // Create a new article
     @PostMapping(value = "/articles")
     public ArticleDto createNewArticles(@RequestBody ArticleRequest articleRequest) {
@@ -57,12 +83,12 @@ public class ArticlesController {
     // Update a specific article
     @PutMapping(value = "/articles/{id}")
     public ArticleDto updateArticle(@RequestBody ArticleRequest articleRequest, @PathVariable UUID id) {
-        var articleVerify = articleService.getArticlesById(id);
         if (articleRequest.title() == null || articleRequest.content() == null ||
                 articleRequest.title().isEmpty() || articleRequest.content().isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         verifyExistingArticle(id);
         return articleService.updateArticle(articleRequest, id);
     }
+
 }
 
