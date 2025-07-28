@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -24,11 +25,15 @@ public class ArticleEntity {
 
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     private LocalDateTime createdDate;
 
     private LocalDateTime updatedDate;
+
+    @Column(columnDefinition = "TEXT")
+    private String summmary;
 
     @ManyToOne
     private UserEntity author;
@@ -36,11 +41,19 @@ public class ArticleEntity {
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> comments;
 
-    public ArticleEntity(UUID id, String title, String content, LocalDateTime createdDate, LocalDateTime updatedDate) {
+    public ArticleEntity(UUID id, String title, String content, LocalDateTime createdDate, LocalDateTime updatedDate,
+                         UserEntity author, String summmary) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.createdDate = createdDate;
         this.updatedDate = updatedDate;
+        this.author = author;
+        this.summmary = summmary;
     }
+
+//    public ArticleEntity(Object o, String title, String content, LocalDateTime now, LocalDateTime now1, UserEntity author,
+//                         String summmary) {
+//    }
+
 }

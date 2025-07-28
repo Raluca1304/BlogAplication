@@ -1,5 +1,7 @@
 package com.cognizant.practice.blog.users.model;
 
+import com.cognizant.practice.blog.articles.model.ArticleDto;
+import com.cognizant.practice.blog.articles.model.ArticleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -33,7 +36,10 @@ public class UserDto {
 
     private String role;
 
-    public UserDto(UUID id, String firstName, String userName, String lastName, String email, String password, LocalDateTime createdDate, String role) {
+    private List<ArticleDto> articles;
+
+    public UserDto(UUID id, String firstName, String userName, String lastName, String email, String password, LocalDateTime createdDate, String role,
+                   List<ArticleDto> articles ) {
         this.id = id;
         this.firstName = firstName;
         this.userName = userName;
@@ -42,5 +48,6 @@ public class UserDto {
         this.password = password;
         this.createdDate = createdDate;
         this.role = role;
+        this.articles = articles;
     }
 }

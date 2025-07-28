@@ -1,5 +1,6 @@
 package com.cognizant.practice.blog.articles.model;
 
+import com.cognizant.practice.blog.users.model.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,5 +24,11 @@ public class ArticleDto {
     private LocalDateTime createdDate;
 
     private LocalDateTime updatedDate;
+
+    private String author;
+
+    private String summary;
+
+    private UUID authorId;
 
 }

@@ -69,12 +69,18 @@ public class UserService {
                 userRequest.username(), userRequest.email(), encodedPassword, LocalDateTime.now(), Role.ROLE_USER, null, null);
         String tokenToReturn = jwtService.generateToken(userRepository.save(userEntity));
         return tokenToReturn;
+
     }
 
-    public Optional<UserDto> updateUsersRole(Role role, UUID id){
-        Optional<UserEntity> user = userRepository.findById(id);
-       user.get().setRole(role);
-       return user.map(UserConvertor::toDto);
+    public Optional<UserDto> updateUsersRole(Role role, UUID id) {
+        Optional<UserEntity> userOpt = userRepository.findById(id);
+        if (userOpt.isPresent()) {
+            UserEntity user = userOpt.get();
+            user.setRole(role);
+            userRepository.save(user);
+            return Optional.of(UserConvertor.toDto(user));
+        }
+        return Optional.empty();
     }
 
     // Delete a user by id

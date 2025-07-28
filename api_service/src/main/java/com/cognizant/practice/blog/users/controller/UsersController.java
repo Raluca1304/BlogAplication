@@ -47,10 +47,10 @@ public class UsersController {
          return new JwtDto(userService.createNewUser(userRequest));
     }
 
-    @PostMapping("/users/login")
-    public JwtDto loginUser(@RequestBody LoginUserDto loginUserDto) {
-        return new JwtDto(userService.loginUser(loginUserDto));
-    }
+     @PostMapping("/users/login")
+     public JwtDto loginUser(@RequestBody LoginUserDto loginUserDto) {
+         return new JwtDto(userService.loginUser(loginUserDto));
+     }
 
     @GetMapping(value = "/users")
     public List<UserDto> getAllUsers() {
@@ -77,9 +77,26 @@ public class UsersController {
         return userService.createNewUser(userRequest);
     }
 
-    @PutMapping(value = "/users/{id}/role")
-    public Optional<UserDto> updateRole(@PathVariable UUID id, @RequestBody Role role) {
-        return userService.updateUsersRole(role, id);
+//    @PutMapping(value = "/users/{id}/role")
+//    public Optional<UserDto> updateRole(@PathVariable UUID id, @RequestBody Role role) {
+//        return userService.updateUsersRole(role, id);
+//    }
+//    @PutMapping(value = "/users/{id}/role", consumes = {"text/plain", "application/json"})
+//    public Optional<UserDto> updateRole(@PathVariable UUID id, @RequestBody Role role) {
+//        return userService.updateUsersRole(role, id);
+//    }
+//    @PutMapping(value = "/users/{id}/role", consumes = "text/plain")
+//    public Optional<UserDto> updateRole(@PathVariable UUID id, @RequestBody String role) {
+//        Role enumRole = Role.valueOf(role.trim());
+//        return userService.updateUsersRole(enumRole, id);
+//    }
+
+    @PutMapping(value = "/users/{id}/role", consumes = "text/plain")
+    public Optional<UserDto> updateRole(@PathVariable UUID id, @RequestBody String role) {
+        System.out.println("Received role string: " + role);
+        Role enumRole = Role.valueOf(role.trim());
+        return userService.updateUsersRole(enumRole, id);
     }
+
 
 }

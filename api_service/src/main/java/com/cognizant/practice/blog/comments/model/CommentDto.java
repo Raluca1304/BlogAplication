@@ -1,5 +1,6 @@
 package com.cognizant.practice.blog.comments.model;
 
+import com.cognizant.practice.blog.users.model.UserEntity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,7 +23,5 @@ public class CommentDto {
     private String text;
 
     private LocalDateTime createdDate;
-
-    public CommentDto(CommentEntity savedComment) {
-    }
+    private String authorName;
 }

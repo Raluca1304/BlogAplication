@@ -20,5 +20,6 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity, UUID> {
 
     Page<ArticleEntity> findAllByTitleAndAuthor(String title, String author, Pageable pageable);
 
+    List<ArticleEntity> findByAuthorId(UUID authorId);
 
 }
