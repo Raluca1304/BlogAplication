@@ -1,7 +1,19 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from "react-router";
+import { LoginFormProps, RegisterFormProps } from './types';
 
-export function LoginForm({ username, password, setUsername, setPassword, onLogin }) {
+interface LoginResponse {
+  token?: string;
+  username?: string;
+  role?: string;
+}
+
+interface RegisterResponse {
+  success: boolean;
+  message?: string;
+}
+
+export function LoginForm({ username, password, setUsername, setPassword, onLogin }: LoginFormProps): JSX.Element {
     return (
       <>
         <input
@@ -26,7 +38,7 @@ export function LoginForm({ username, password, setUsername, setPassword, onLogi
     username, password, firstName, lastName, email,
     setUsername, setPassword, setFirstName, setLastName, setEmail,
     onRegister
-  }) {
+  }: RegisterFormProps): JSX.Element {
     return (
       <>
         <input
@@ -64,19 +76,19 @@ export function LoginForm({ username, password, setUsername, setPassword, onLogi
     );
   }
   
-  export function Login() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [token, setToken] = useState(null);
-    const [showRegister, setShowRegister] = useState(false);
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [email, setEmail] = useState('');
-    const [role, setRole] = useState('');
+  export function Login(): JSX.Element {
+    const [username, setUsername] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [token, setToken] = useState<string | null>(null);
+    const [showRegister, setShowRegister] = useState<boolean>(false);
+    const [firstName, setFirstName] = useState<string>('');
+    const [lastName, setLastName] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
+    const [role, setRole] = useState<string>('');
   
     const navigate = useNavigate();
   
-    const handleLogin = async () => {
+    const handleLogin = async (): Promise<void> => {
       try {
         const res = await fetch('/api/users/login', {
           method: 'POST',
@@ -84,7 +96,7 @@ export function LoginForm({ username, password, setUsername, setPassword, onLogi
           body: JSON.stringify({ username, password })
         });
   
-        const data = await res.json();
+        const data: LoginResponse = await res.json();
         console.log("login response:", data);
         if (data.token) {
           setToken(data.token);
@@ -102,7 +114,7 @@ export function LoginForm({ username, password, setUsername, setPassword, onLogi
       }
     };
   
-    const handleRegister = async () => {
+    const handleRegister = async (): Promise<void> => {
       try {
         const res = await fetch('/api/users/signup', {
           method: 'POST',
@@ -110,7 +122,7 @@ export function LoginForm({ username, password, setUsername, setPassword, onLogi
           body: JSON.stringify({ username, password, firstName, lastName, email })
         });
   
-        const data = await res.json();
+        const data: RegisterResponse = await res.json();
         alert("Register successful! You can now log in.");
         setShowRegister(false);
       } catch (err) {
@@ -169,4 +181,4 @@ export function LoginForm({ username, password, setUsername, setPassword, onLogi
         </div>
       </div>
     );
-  }
+  } 

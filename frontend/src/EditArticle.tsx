@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 
-export function EditArticle() {
-  const { id } = useParams();
+interface ArticleData {
+  title: string;
+  content: string;
+}
+
+export function EditArticle(): JSX.Element {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [title, setTitle] = useState<string>('');
+  const [content, setContent] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    if (!id) {
+      setError('Article ID is required');
+      setLoading(false);
+      return;
+    }
+
     fetch(`/api/articles/${id}`)
       .then(res => res.json())
-      .then(data => {
+      .then((data: ArticleData) => {
         setTitle(data.title || '');
         setContent(data.content || '');
       })
@@ -20,10 +31,17 @@ export function EditArticle() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setError(null);
-    const token = localStorage.getItem('jwt');
+    
+    if (!id) {
+      setError('Article ID is required');
+      return;
+    }
+    
+    const token: string | null = localStorage.getItem('jwt');
+    
     try {
       const res = await fetch(`/api/articles/${id}`, {
         method: 'PUT',
@@ -33,6 +51,7 @@ export function EditArticle() {
         },
         body: JSON.stringify({ title, content })
       });
+      
       if (res.ok) {
         navigate(`/posts/${id}`);
       } else {
@@ -71,4 +90,4 @@ export function EditArticle() {
       </form>
     </div>
   );
-}
+} 

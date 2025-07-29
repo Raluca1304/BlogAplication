@@ -8,7 +8,10 @@
   },
   "devDependencies": {
     "http-proxy-middleware": "^3.0.5",
-    "parcel": "^2.15.4"
+    "parcel": "^2.15.4",
+    "typescript": "^5.7.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2"
   },
   "dependencies": {
     "jwt-decoder": "^0.0.0",

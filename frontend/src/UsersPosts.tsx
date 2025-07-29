@@ -1,27 +1,43 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useParams } from "react-router";
 
-export function UsersPosts() {
-    const { id } = useParams();
-    const [articles, setArticles] = useState([]);
-    const [userAuthor, setUserAuthor] = useState("");
-    const [selectedAuthor, setSelectedAuthor] = useState(null);
+interface Article {
+  id: string;
+  title: string;
+  author: string;
+  authorId: string;
+  summary: string;
+  createdDate: string;
+}
+
+interface User {
+  firstName: string;
+  lastName: string;
+}
+
+export function UsersPosts(): JSX.Element {
+    const { id } = useParams<{ id: string }>();
+    const [articles, setArticles] = useState<Article[]>([]);
+    const [userAuthor, setUserAuthor] = useState<string>("");
+    const [selectedAuthor, setSelectedAuthor] = useState<string | null>(null);
   
     useEffect(() => {
-        const token = localStorage.getItem("jwt");
+        if (!id) return;
+        
+        const token: string | null = localStorage.getItem("jwt");
   
         fetch(`/api/articles?authorId=${id}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
         .then(res => res.json())
-        .then(data => setArticles(data))
+        .then((data: Article[]) => setArticles(data))
         .catch(err => console.error("Eroare la fetch: ", err));
   
         fetch(`/api/users/${id}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
         .then(res => res.json())
-        .then(user => {
+        .then((user: User) => {
           if (user && user.firstName && user.lastName) {
             setUserAuthor(user.lastName);
           } else {
@@ -31,15 +47,16 @@ export function UsersPosts() {
         .catch(err => console.error("Eroare la fetch user: ", err));
     }, [id]);
   
-    const filteredArticles = selectedAuthor
+    const filteredArticles: Article[] = selectedAuthor
       ? articles.filter(a => a.author === selectedAuthor)
       : articles;
   
-    const currentUser = localStorage.getItem("username");
+    const currentUser: string | null = localStorage.getItem("username");
 
-    const handleDelete = async (articleId) => {
-      const token = localStorage.getItem("jwt");
+    const handleDelete = async (articleId: string): Promise<void> => {
+      const token: string | null = localStorage.getItem("jwt");
       if (!window.confirm("Sigur vrei să ștergi acest articol?")) return;
+      
       try {
         const res = await fetch(`/api/articles/${articleId}`, {
           method: "DELETE",
@@ -90,4 +107,4 @@ export function UsersPosts() {
             </div>
         </div>
     );
-  }
+  } 

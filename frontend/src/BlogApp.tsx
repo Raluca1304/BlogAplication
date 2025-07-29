@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, useParams, Navigate, NavLink, useNavigate, Outlet } from "react-router";
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { Layout } from './Layout';
 import { Posts } from './Posts';
 import { PostItem } from './PostItem';
 import { Login } from './Login';  
 import { UsersPosts } from './UsersPosts';
 import { CreateArticle } from './CreateArticle';
-import { LogoutButton } from './LogoutButton';
 import { EditArticle } from './EditArticle';
 import { Home } from './Home';
 import { UsersList } from './UsersList';
 
-export function BlogApp() {
+export function BlogApp(): JSX.Element {
   return (
     <BrowserRouter>
         <Routes>
@@ -29,4 +28,4 @@ export function BlogApp() {
         </Routes>
     </BrowserRouter>
   );
-}
+} 

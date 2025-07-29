@@ -1,11 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router";
 
-export function LogoutButton() {
+export function LogoutButton(): JSX.Element {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = (): void => {
     localStorage.removeItem("jwt");
+    localStorage.removeItem("username");
+    localStorage.removeItem("role");
     navigate("/login");
   };
 
@@ -14,4 +16,4 @@ export function LogoutButton() {
       Logout
     </button>
   );
-}
+} 

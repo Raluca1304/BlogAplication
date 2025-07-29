@@ -1,14 +1,13 @@
-import { Outlet, NavLink, useLocation, useParams } from 'react-router';
-import { LogoutButton } from './LogoutButton';
 import React, { useState } from 'react';
+import { Outlet, NavLink, useLocation } from 'react-router';
+import { LogoutButton } from './LogoutButton';
 
-export function Layout() {
+export function Layout(): JSX.Element {
   const location = useLocation();
-  const params = useParams();
-  const role = localStorage.getItem('role');
-  const isLoggedIn = !!localStorage.getItem('jwt');
-  const isLoginPage = location.pathname === "/login";
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const role: string | null = localStorage.getItem('role');
+  const isLoggedIn: boolean = !!localStorage.getItem('jwt');
+  const isLoginPage: boolean = location.pathname === "/login";
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
 
   return (
     <div className="layout-root">
@@ -45,4 +44,4 @@ export function Layout() {
       </main>
     </div>
   );
-}
+} 

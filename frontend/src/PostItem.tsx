@@ -1,39 +1,57 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useParams } from "react-router";
 
-export function PostItem() {
-    const { id } = useParams();
-    const [article, setArticle] = useState(null);
-    const [comments, setComments] = useState([]);
-    const [loadingComments, setLoadingComments] = useState(true);
-    const [newComment, setNewComment] = useState("");
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
+interface Article {
+  id: string;
+  title: string;
+  content: string;
+  author: string;
+  authorId: string;
+  createdDate: string;
+}
+
+interface Comment {
+  id: string;
+  text: string;
+  authorName?: string;
+}
+
+export function PostItem(): JSX.Element {
+    const { id } = useParams<{ id: string }>();
+    const [article, setArticle] = useState<Article | null>(null);
+    const [comments, setComments] = useState<Comment[]>([]);
+    const [loadingComments, setLoadingComments] = useState<boolean>(true);
+    const [newComment, setNewComment] = useState<string>("");
+    const [error, setError] = useState<string | JSX.Element | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
+      if (!id) return;
+
       fetch(`/api/articles/${id}`)
         .then((res) => res.json())
-        .then((data) => setArticle(data))
+        .then((data: Article) => setArticle(data))
         .catch((err) => console.error("Eroare la fetch:", err));
 
       setLoadingComments(true);
-      const token = localStorage.getItem("jwt");
+      const token: string | null = localStorage.getItem("jwt");
       fetch(`/api/articles/${id}/comments`, {
         headers: {
           "Authorization": `Bearer ${token}`
         }
       })
         .then(res => res.json())
-        .then(data => setComments(Array.isArray(data) ? data : []))
+        .then((data: Comment[] | any) => setComments(Array.isArray(data) ? data : []))
         .catch(err => setComments([]))
         .finally(() => setLoadingComments(false));
     }, [id]);
 
-    const handleAddComment = async (e) => {
+    const handleAddComment = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
       e.preventDefault();
       setError(null);
       setSuccess(null);
-      const token = localStorage.getItem("jwt");
+      const token: string | null = localStorage.getItem("jwt");
+      
       if (!token) {
         setError(
           <span>
@@ -44,6 +62,7 @@ export function PostItem() {
         );
         return;
       }
+      
       try {
         const res = await fetch(`/api/articles/${id}/comments`, {
           method: "POST",
@@ -59,7 +78,7 @@ export function PostItem() {
           setNewComment("");
           fetch(`/api/articles/${id}/comments`)
             .then(res => res.json())
-            .then(data => setComments(data));
+            .then((data: Comment[]) => setComments(data));
             
         } else {
           setError("Could not add comment.");
@@ -69,9 +88,10 @@ export function PostItem() {
       }
     };
 
-    const handleDeleteComment = async (commentId) => {
-      const token = localStorage.getItem("jwt");
+    const handleDeleteComment = async (commentId: string): Promise<void> => {
+      const token: string | null = localStorage.getItem("jwt");
       if (!window.confirm("Are you sure you want to delete this comment?")) return;
+      
       try {
         const res = await fetch(`/api/articles/${id}/comments/${commentId}`, {
           method: "DELETE",
@@ -85,6 +105,7 @@ export function PostItem() {
       } catch (err) {
         alert("Error deleting comment!");
       }
+      
       if(!token) {
         setError(
           <span>
@@ -94,13 +115,14 @@ export function PostItem() {
       }
     };
 
-    const currentUser = localStorage.getItem("username");
+    const currentUser: string | null = localStorage.getItem("username");
 
     console.log("article:", article, "currentUser:", currentUser);
 
     if (!article || !article.title) {
       return <p>Loading...</p>;
     }
+    
     return (
       <div className="article">
         <h2>{article.title}</h2>
@@ -149,4 +171,4 @@ export function PostItem() {
         </div>
       </div>
     );
-  }
+  } 

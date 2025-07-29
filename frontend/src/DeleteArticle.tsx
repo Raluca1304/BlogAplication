@@ -1,15 +1,23 @@
 import React from "react";
 
-export function DeleteArticle({ articleId, onDelete }) {
-  const handleDelete = async () => {
-    const token = localStorage.getItem("jwt");
+interface DeleteArticleProps {
+  articleId: string;
+  onDelete: (articleId: string) => void;
+}
+
+export function DeleteArticle({ articleId, onDelete }: DeleteArticleProps): JSX.Element {
+  const handleDelete = async (): Promise<void> => {
+    const token: string | null = localStorage.getItem("jwt");
     if (!window.confirm("Sigur vrei să ștergi acest articol?")) return;
+    
     try {
       const res = await fetch(`/api/articles/${articleId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (res.ok) {// notifică părintele să scoată articolul din listă
+      
+      if (res.ok) {
+        onDelete(articleId); // notifică părintele să scoată articolul din listă
       } else {
         alert("Nu ai voie să ștergi acest articol!");
       }
@@ -23,4 +31,4 @@ export function DeleteArticle({ articleId, onDelete }) {
       Delete
     </button>
   );
-}
+} 

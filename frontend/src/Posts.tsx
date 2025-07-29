@@ -1,24 +1,35 @@
-import { useState, useEffect } from 'react';
-import { NavLink } from  "react-router";
+import React, { useState, useEffect } from 'react';
+import { NavLink } from "react-router";
+import { Post } from './types';
 
-export function Posts() {
-    const [articles, setArticles] = useState([]);
-    const [selectedAuthor, setSelectedAuthor] = useState(null);
+interface Article {
+  id: string;
+  title: string;
+  author: string;
+  authorId: string;
+  summary: string;
+  createdDate: string;
+}
+
+export function Posts(): JSX.Element {
+    const [articles, setArticles] = useState<Article[]>([]);
+    const [selectedAuthor, setSelectedAuthor] = useState<string | null>(null);
 
     useEffect(() => {
         fetch("/api/articles")
             .then(response => response.json())
-            .then((data) => {
+            .then((data: Article[]) => {
                 console.log(data)
                 setArticles(data);
             })
             .catch((err) => console.error("Eroare la fetch:", err));
     }, []);
 
-    const authors = Array.from(new Set(
+    const authors: string[] = Array.from(new Set(
       articles.map(a => a.author).filter(a => a && a.trim() !== "")
     )).sort((a, b) => a.localeCompare(b));
-    const filteredArticles = selectedAuthor
+    
+    const filteredArticles: Article[] = selectedAuthor
       ? articles.filter(a => a.author === selectedAuthor)
       : articles;
 
@@ -57,4 +68,4 @@ export function Posts() {
       </NavLink> */}
     </div>
   );
-}
+} 

@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from 'react';
+import { User } from './types';
 
-const ROLES = ["ROLE_USER", "ROLE_AUTHOR", "ROLE_ADMIN"];
+const ROLES: string[] = ["ROLE_USER", "ROLE_AUTHOR", "ROLE_ADMIN"];
 
-export function UsersList() {
-  const [users, setUsers] = useState([]);
-  const [error, setError] = useState(null);
+interface UsersListUser extends User {
+  userName?: string; // Alternative field name for username
+}
+
+export function UsersList(): JSX.Element {
+  const [users, setUsers] = useState<UsersListUser[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  function fetchUsers() {
-    const token = localStorage.getItem('jwt');
+  function fetchUsers(): void {
+    const token: string | null = localStorage.getItem('jwt');
     fetch('/api/users', {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -19,12 +24,12 @@ export function UsersList() {
         if (!res.ok) throw new Error('Not authorized or error fetching users');
         return res.json();
       })
-      .then(setUsers) // <- trebuie să actualizeze starea
-      .catch(err => setError(err.message));
+      .then((data: UsersListUser[]) => setUsers(data)) // <- trebuie să actualizeze starea
+      .catch((err: Error) => setError(err.message));
   }
 
-  function handleRoleChange(userId, newRole) {
-    const token = localStorage.getItem('jwt');
+  function handleRoleChange(userId: string, newRole: string): void {
+    const token: string | null = localStorage.getItem('jwt');
     fetch(`/api/users/${userId}/role`, {
       method: 'PUT',
       headers: {
@@ -38,7 +43,7 @@ export function UsersList() {
         return res.json();
       })
       .then(() => fetchUsers())
-      .catch(err => setError(err.message));
+      .catch((err: Error) => setError(err.message));
   }
 
   if (error) return <div style={{ color: 'red' }}>{error}</div>;
@@ -67,7 +72,7 @@ export function UsersList() {
               <td>{u.role}</td>
               <td>
                 <select
-                  value={u.role}
+                  value={u.role || "ROLE_USER"}
                   onChange={e => handleRoleChange(u.id, e.target.value)}
                   disabled={u.role === "ROLE_ADMIN"}
                 >
@@ -82,4 +87,4 @@ export function UsersList() {
       </table>
     </div>
   );
-}
+} 
