@@ -1,5 +1,7 @@
 package com.cognizant.practice.blog.comments.model;
 
+import com.cognizant.practice.blog.articles.model.ArticleDto;
+import com.cognizant.practice.blog.articles.model.ArticleEntity;
 import com.cognizant.practice.blog.users.model.UserEntity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,5 +25,8 @@ public class CommentDto {
     private String text;
 
     private LocalDateTime createdDate;
+
     private String authorName;
+
+    private ArticleDto article;
 }

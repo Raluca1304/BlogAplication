@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, JSX } from 'react';
 import { NavLink, useParams } from "react-router";
+import { User } from './types';
 
 interface Article {
   id: string;
@@ -8,11 +9,6 @@ interface Article {
   authorId: string;
   summary: string;
   createdDate: string;
-}
-
-interface User {
-  firstName: string;
-  lastName: string;
 }
 
 export function UsersPosts(): JSX.Element {

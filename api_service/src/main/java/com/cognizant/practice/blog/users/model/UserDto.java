@@ -26,7 +26,7 @@ public class UserDto {
 
     private String lastName;
 
-    private String userName;
+    private String username;
 
     private String email;
 
@@ -38,11 +38,11 @@ public class UserDto {
 
     private List<ArticleDto> articles;
 
-    public UserDto(UUID id, String firstName, String userName, String lastName, String email, String password, LocalDateTime createdDate, String role,
+    public UserDto(UUID id, String username,  String firstName, String lastName, String email, String password, LocalDateTime createdDate, String role,
                    List<ArticleDto> articles ) {
         this.id = id;
+        this.username = username;
         this.firstName = firstName;
-        this.userName = userName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;

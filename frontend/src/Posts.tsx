@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, JSX } from 'react';
 import { NavLink } from "react-router";
 import { Post } from './types';
 
@@ -63,9 +63,6 @@ export function Posts(): JSX.Element {
           </div>
         ))}
       </div>
-      {/* <NavLink to="/create" className="create-article-btn">
-        Create new article
-      </NavLink> */}
     </div>
   );
 } 

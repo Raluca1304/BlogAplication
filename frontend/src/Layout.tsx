@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { JSX, useState } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router';
 import { LogoutButton } from './LogoutButton';
+import { roleUtils } from './types';
 
 export function Layout(): JSX.Element {
   const location = useLocation();
@@ -20,10 +21,21 @@ export function Layout(): JSX.Element {
               </svg>
             </button>
             <nav className="sidebar-nav">
-              <NavLink to="/home" className="sidebar-link">Home</NavLink>
-              <NavLink to="/posts" className="sidebar-link">All Posts</NavLink>
-                <NavLink to="/users" className="sidebar-link">All Users</NavLink>
-                <NavLink to="/create" className="sidebar-link">Create Post</NavLink>
+              {/* Home - visible for ADMIN and AUTHOR */}
+              {(roleUtils.isAdmin(role) || roleUtils.isAuthor(role)) && (
+                <NavLink to="/home" className="sidebar-link">Home</NavLink>
+              )}
+              {
+                <NavLink to="/profile" className="sidebar-link">Profile</NavLink>
+              }
+              {/* Admin Panel - only for ADMIN */}
+              {roleUtils.isAdmin(role) && (
+                <NavLink to="/admin/dashboard" className="sidebar-link">
+                  Admin Panel
+                </NavLink>
+              )}
+
+              
               <div className="sidebar-spacer" />
               <LogoutButton />
             </nav>

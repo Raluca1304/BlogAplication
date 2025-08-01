@@ -1,5 +1,3 @@
-// Common data types used throughout the application
-
 export interface User {
   id: string;
   username: string;
@@ -15,8 +13,16 @@ export interface Post {
   content: string;
   author: User;
   authorId: string;
-  createdAt: string;
-  updatedAt?: string;
+  createdDate: string;
+  updatedDate?: string;
+}
+
+export interface Comment {
+  id: string;
+  text: string;
+  createdDate: string;
+  authorName: string;
+  article: Post;
 }
 
 export interface LoginCredentials {
@@ -32,12 +38,30 @@ export interface RegisterData {
   email: string;
 }
 
-export interface AuthResponse {
-  jwt: string;
-  user: User;
+export interface JwtResponse {
+  token: string;
+  role: string;
+  username: string;
 }
 
-// Props interfaces for components
+export interface UserPermissions {
+  username: string;
+  role: string;
+  isAdmin: boolean;
+  isAuthor: boolean;
+  canCreateArticles: boolean;
+  canEditAllArticles: boolean;
+  canDeleteAllArticles: boolean;
+  canManageUsers: boolean;
+}
+
+export const ROLES = {
+  USER: 'ROLE_USER',
+  AUTHOR: 'ROLE_AUTHOR',
+  ADMIN: 'ROLE_ADMIN'
+} as const;
+
+
 export interface LoginFormProps {
   username: string;
   password: string;
@@ -58,4 +82,15 @@ export interface RegisterFormProps {
   setLastName: (lastName: string) => void;
   setEmail: (email: string) => void;
   onRegister: () => void;
-} 
+}
+
+
+export const roleUtils = {
+  isAdmin: (role: string | null): boolean => role === ROLES.ADMIN,
+  isAuthor: (role: string | null): boolean => role === ROLES.AUTHOR,
+  isUser: (role: string | null): boolean => role === ROLES.USER,
+  canCreateArticles: (role: string | null): boolean => 
+    role === ROLES.ADMIN || role === ROLES.AUTHOR,
+  canManageUsers: (role: string | null): boolean => role === ROLES.ADMIN,
+  canEditAllArticles: (role: string | null): boolean => role === ROLES.ADMIN,
+}; 

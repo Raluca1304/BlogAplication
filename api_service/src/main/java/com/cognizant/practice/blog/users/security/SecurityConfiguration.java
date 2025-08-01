@@ -40,7 +40,10 @@ public class SecurityConfiguration {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/articles/{id}/comments").hasRole("USER")
-                        //.requestMatchers(HttpMethod.GET, "/articles/{id}/comments").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/comments/{commentId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/comments/{commentId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/comments/{commentId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/articles/{id}/comments").hasRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/articles/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/articles/**").hasRole("AUTHOR")
                         .requestMatchers(HttpMethod.POST, "/articles/**").hasRole("AUTHOR")

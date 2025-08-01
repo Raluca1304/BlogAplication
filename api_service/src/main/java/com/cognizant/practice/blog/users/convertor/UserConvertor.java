@@ -9,14 +9,14 @@ import java.util.stream.Collectors;
 public class UserConvertor {
     public static UserDto toDto(UserEntity userEntity) {
         return UserDto.builder()
-                .email(userEntity.getEmail())
-                .userName(userEntity.getUsername())
-                .lastName(userEntity.getLastName())
-                .password(userEntity.getPassword())
-                .role(userEntity.getRole().name())
-                .createdDate(userEntity.getCreatedDate())
                 .id(userEntity.getId())
+                .username(userEntity.getUsername())
                 .firstName(userEntity.getFirstName())
+                .lastName(userEntity.getLastName())
+                .email(userEntity.getEmail())
+                .password(userEntity.getPassword())
+                .createdDate(userEntity.getCreatedDate())
+                .role(userEntity.getRole().name())
                 .articles(
                         userEntity.getArticles().stream()
                                 .map(ArticleConvertor::toDto)

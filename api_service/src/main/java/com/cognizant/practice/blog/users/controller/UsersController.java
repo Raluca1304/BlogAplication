@@ -5,14 +5,12 @@ import com.cognizant.practice.blog.users.security.JwtDto;
 import com.cognizant.practice.blog.users.security.JwtService;
 import com.cognizant.practice.blog.users.security.LoginUserDto;
 import com.cognizant.practice.blog.users.service.UserService;
-import io.jsonwebtoken.Jwt;
-import org.apache.catalina.User;
-import org.springframework.boot.web.embedded.jetty.JettyWebServer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,19 +42,38 @@ public class UsersController {
 
     @PostMapping("/users/signup")
     public JwtDto registerUser(@RequestBody UserRequest userRequest) {
-         return new JwtDto(userService.createNewUser(userRequest));
+        String token = userService.createNewUser(userRequest);
+        String role = jwtService.extractRole(token);
+        String username = jwtService.extractUsername(token);
+        return new JwtDto(token, role, username);
     }
 
      @PostMapping("/users/login")
      public JwtDto loginUser(@RequestBody LoginUserDto loginUserDto) {
-         return new JwtDto(userService.loginUser(loginUserDto));
+         String token = userService.loginUser(loginUserDto);
+         String role = jwtService.extractRole(token);
+         String username = jwtService.extractUsername(token);
+         return new JwtDto(token, role, username);
      }
+
+    // New endpoint to verify token and get user info
+    @GetMapping("/users/me")
+    public ResponseEntity<JwtDto> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+        try {
+            String token = authHeader.substring(7); // Remove "Bearer " prefix
+            String username = jwtService.extractUsername(token);
+            String role = jwtService.extractRole(token);
+            
+            return ResponseEntity.ok(new JwtDto(token, role, username));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
 
     @GetMapping(value = "/users")
     public List<UserDto> getAllUsers() {
         return userService.getAllUsers();
     }
-
 
     @GetMapping(value = "/users/{id}")
     public UserDto getUsersById(@PathVariable UUID id) {
@@ -77,26 +94,10 @@ public class UsersController {
         return userService.createNewUser(userRequest);
     }
 
-//    @PutMapping(value = "/users/{id}/role")
-//    public Optional<UserDto> updateRole(@PathVariable UUID id, @RequestBody Role role) {
-//        return userService.updateUsersRole(role, id);
-//    }
-//    @PutMapping(value = "/users/{id}/role", consumes = {"text/plain", "application/json"})
-//    public Optional<UserDto> updateRole(@PathVariable UUID id, @RequestBody Role role) {
-//        return userService.updateUsersRole(role, id);
-//    }
-//    @PutMapping(value = "/users/{id}/role", consumes = "text/plain")
-//    public Optional<UserDto> updateRole(@PathVariable UUID id, @RequestBody String role) {
-//        Role enumRole = Role.valueOf(role.trim());
-//        return userService.updateUsersRole(enumRole, id);
-//    }
-
     @PutMapping(value = "/users/{id}/role", consumes = "text/plain")
     public Optional<UserDto> updateRole(@PathVariable UUID id, @RequestBody String role) {
         System.out.println("Received role string: " + role);
         Role enumRole = Role.valueOf(role.trim());
         return userService.updateUsersRole(enumRole, id);
     }
-
-
 }

@@ -32,5 +32,4 @@ public class CommentEntity {
     @ManyToOne
     private UserEntity author;
 
-
 }
