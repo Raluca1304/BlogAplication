@@ -25,6 +25,7 @@ export function Users() {
         const token = localStorage.getItem('jwt');
         fetch('/api/users', {
             headers: { Authorization: `Bearer ${token}` }
+            
         })
             .then(res => {
                 if (!res.ok) throw new Error('Not authorized or error fetching users');
@@ -39,7 +40,7 @@ export function Users() {
                 setError(err.message);
             })
             .finally(() => setLoading(false));
-
+            console.log("Users data:", users);
     }, []);
 
     const handleDelete = async (userId: string): Promise<void> => {
@@ -47,7 +48,7 @@ export function Users() {
         if (!window.confirm("Are you sure you want to delete this user?")) return;
         
         try {
-            const res = await fetch(`/api/users/${userId}`, {
+            const res = await fetch(`/users/${userId}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -79,23 +80,47 @@ export function Users() {
         if (!window.confirm(`Are you sure you want to change role to ${newRole}?`)) return;
         
         try {
-            const res = await fetch(`/api/users/${userId}/role`, {
-                method: 'PUT',
+            // First get the current user data
+            const userRes = await fetch(`/api/users/${userId}`, {
+                method: 'GET',
                 headers: {
-                    'Content-Type': 'text/plain',
                     Authorization: `Bearer ${token}`
-                },
-                body: newRole
+                }
             });
             
-            if (res.ok) {
-
+            if (!userRes.ok) {
+                alert("Failed to get user data!");
+                return;
+            }
+            
+            const userData = await userRes.json();
+            
+            // Now update with the new role
+            const updateRes = await fetch(`/api/users/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    firstName: userData.firstName,
+                    lastName: userData.lastName,
+                    username: userData.username,
+                    email: userData.email,
+                    password: userData.password || '',
+                    role: newRole
+                })
+            });
+            
+            if (updateRes.ok) {
                 const updatedUsers = users.map(user => 
                     user.id === userId ? { ...user, role: newRole } : user
                 );
                 setUsers(updatedUsers);
                 alert("Role updated successfully!");
             } else {
+                const errorText = await updateRes.text();
+                console.error("Update failed:", errorText);
                 alert("Failed to update role!");
             }
         } catch (err) {
@@ -201,7 +226,8 @@ export function Users() {
                         <tr style={{ backgroundColor: '#f5f5f5' }}>
                             <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>ID</th>
                             <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Username</th>
-                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Name</th>
+                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>First name</th>
+                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Last name</th>
                             <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Email</th>
                             <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Role</th>
                             <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Change Role</th>
@@ -215,10 +241,16 @@ export function Users() {
                                     {user.id}
                                 </td>
                                 <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                                     {/* aici am lastname care de fapt este username */}
                                     {user.username}
                                 </td>
                                 <td style={{ border: '1px solid #ddd', padding: '12px' }}>
-                                    {user.firstName} {user.lastName}
+                                    {/* aici am username care de fapt este firstName */}
+                                    {user.firstName} 
+                                </td>
+                                <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                                    {/* aici am firstName care de fapt este lastName */}
+                                    {user.lastName}
                                 </td>
                                 <td style={{ border: '1px solid #ddd', padding: '12px' }}>
                                     {user.email}

@@ -5,6 +5,7 @@ import com.cognizant.practice.blog.users.security.JwtDto;
 import com.cognizant.practice.blog.users.security.JwtService;
 import com.cognizant.practice.blog.users.security.LoginUserDto;
 import com.cognizant.practice.blog.users.service.UserService;
+import org.apache.catalina.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -95,9 +96,8 @@ public class UsersController {
     }
 
     @PutMapping(value = "/users/{id}/role", consumes = "text/plain")
-    public Optional<UserDto> updateRole(@PathVariable UUID id, @RequestBody String role) {
-        System.out.println("Received role string: " + role);
-        Role enumRole = Role.valueOf(role.trim());
-        return userService.updateUsersRole(enumRole, id);
+    public Optional<UserDto> updateRole(@PathVariable UUID id, Role role) {
+        return userService.updateUsersRole(role, id);
     }
+
 }

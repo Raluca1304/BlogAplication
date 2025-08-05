@@ -12,9 +12,20 @@ export interface Post {
   title: string;
   content: string;
   author: User;
+  summary: string;
+  authorName: string;
   authorId: string;
   createdDate: string;
   updatedDate?: string;
+}
+
+export interface Article {
+  id: string;
+  title: string;
+  author: string;
+  authorId: string;
+  summary: string;
+  createdDate: string;
 }
 
 export interface Comment {
@@ -67,7 +78,7 @@ export interface LoginFormProps {
   password: string;
   setUsername: (username: string) => void;
   setPassword: (password: string) => void;
-  onLogin: () => void;
+  onLogin: (formData?: any) => void;
 }
 
 export interface RegisterFormProps {
@@ -81,7 +92,7 @@ export interface RegisterFormProps {
   setFirstName: (firstName: string) => void;
   setLastName: (lastName: string) => void;
   setEmail: (email: string) => void;
-  onRegister: () => void;
+  onRegister: (formData?: any) => void;
 }
 
 

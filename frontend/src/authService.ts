@@ -129,26 +129,26 @@ class AuthService {
   }
 
   // Check if user has specific permission
-  hasPermission(permission: keyof UserPermissions): boolean {
-    const role = this.getRole();
+  // hasPermission(permission: keyof UserPermissions): boolean {
+  //   const role = this.getRole();
     
-    switch (permission) {
-      case 'isAdmin':
-        return this.isAdmin();
-      case 'isAuthor':
-        return this.isAuthor();
-      case 'canCreateArticles':
-        return this.canCreateArticles();
-      case 'canEditAllArticles':
-        return this.canEditAllArticles();
-      case 'canDeleteAllArticles':
-        return this.canEditAllArticles(); // Same as edit for now
-      case 'canManageUsers':
-        return this.canManageUsers();
-      default:
-        return false;
-    }
-  }
+  //   switch (permission) {
+  //     case 'isAdmin':
+  //       return this.isAdmin();
+  //     case 'isAuthor':
+  //       return this.isAuthor();
+  //     case 'canCreateArticles':
+  //       return this.canCreateArticles();
+  //     case 'canEditAllArticles':
+  //       return this.canEditAllArticles();
+  //     case 'canDeleteAllArticles':
+  //       return this.canEditAllArticles(); // Same as edit for now
+  //     case 'canManageUsers':
+  //       return this.canManageUsers();
+  //     default:
+  //       return false;
+  //   }
+  // }
 
   // Get user info summary
   getUserInfo(): { username: string | null; role: string | null; isAuthenticated: boolean } {

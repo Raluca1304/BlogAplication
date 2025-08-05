@@ -275,7 +275,7 @@ main {
 }
 
 .logout-btn, .home-button {
-  background: #a95174;
+  background: #1f5383;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -290,7 +290,7 @@ main {
 }
 
 .logout-btn:hover, .home-button:hover {
-  background: #d17ca6;
+  background: #3d438b;
 }
 
 .home-button {
@@ -381,7 +381,7 @@ main {
   top: 0;
   bottom: 0;
   width: 210px;
-  background: #a95174;
+  background: #28859e;
   color: #efeeee;
   display: flex;
   flex-direction: column;
@@ -421,7 +421,7 @@ main {
   transition: background 0.2s, color 0.2s;
 }
 .sidebar-link:hover, .sidebar-link.active {
-  background: #d17ca6;
+  background: #247a9a;
   color: #fff;
 }
 
@@ -434,7 +434,7 @@ main {
   width: 100%;
   border-radius: 0 0 8px 8px;
   margin: 0;
-  background: #7f143f;
+  background: #1c8bbe;
   color: #f6f2f2;
   font-size: 1rem;
   font-weight: bold;
@@ -443,7 +443,7 @@ main {
   position: static;
 }
 .sidebar .logout-btn:hover {
-  background: #af1c57;
+  background: #3967d4;
 }
 .with-sidebar {
   margin-left: 210px;
@@ -468,7 +468,7 @@ main {
   left: 8px;
   z-index: 2100;
   background: none;
-  color: #a95174;
+  color: #517ca9;
   border: none;
   border-radius: 0;
   font-size: 1.6rem;
@@ -479,7 +479,7 @@ main {
   line-height: 1;
 }
 .sidebar-hamburger:hover {
-  color: #d17ca6;
+  color: #2b607e;
   background: none;
 }
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Post } from '../../../types';
+import { useForm } from 'react-hook-form';
 
 interface ArticleFormProps {
     articleId?: string;
@@ -16,11 +17,16 @@ export function ArticleForm({
     onCancel, 
     mode 
 }: ArticleFormProps) {
-    const [title, setTitle] = useState<string>(initialData?.title || '');
-    const [content, setContent] = useState<string>(initialData?.content || '');
     const [loading, setLoading] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+
+    const { register, handleSubmit, formState: { errors }, setValue } = useForm({
+        defaultValues: {
+            title: initialData?.title || '',
+            content: initialData?.content || ''
+        }
+    });
 
     useEffect(() => {
         if (mode === 'edit' && articleId && !initialData) {
@@ -28,19 +34,18 @@ export function ArticleForm({
             fetch(`/api/articles/${articleId}`)
                 .then(res => res.json())
                 .then((data: Post) => {
-                    setTitle(data.title || '');
-                    setContent(data.content || '');
+                    setValue('title', data.title || '');
+                    setValue('content', data.content || '');
                 })
                 .catch(() => setError('Could not load article.'))
                 .finally(() => setLoading(false));
         }
-    }, [articleId, initialData, mode]);
+    }, [articleId, initialData, mode, setValue]);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-        e.preventDefault();
+    const onSubmit = async (data: any) => {
         setError(null);
         
-        if (!title.trim() || !content.trim()) {
+        if (!data.title.trim() || !data.content.trim()) {
             setError('Title and content are required');
             return;
         }
@@ -58,7 +63,7 @@ export function ArticleForm({
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ title, content })
+                body: JSON.stringify({ title: data.title, content: data.content })
             });
             
             if (res.ok) {
@@ -75,115 +80,39 @@ export function ArticleForm({
     };
 
     if (loading) {
-        return (
-            <div style={{ padding: '20px' }}>
-                <p>Loading article...</p>
-            </div>
-        );
+        return <div>Loading article...</div>;
     }
 
     return (
         <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
             <h2>{mode === 'edit' ? 'Edit Article' : 'Create Article'}</h2>
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '20px' }}>
-                    <label 
-                        htmlFor="articleTitle" 
-                        style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}
-                    >
-                        Title:
-                    </label>
-                    <input
-                        id="articleTitle"
-                        type="text"
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                        required
-                        disabled={saving}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: '1px solid #ddd',
-                            borderRadius: '4px',
-                            fontSize: '16px',
-                            fontFamily: 'inherit'
-                        }}
-                        placeholder="Enter article title..."
-                    />
-                </div>
+            
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <input 
+                    type="text" 
+                    placeholder="Article title" 
+                    {...register("title", {required: true, minLength: 3})} 
+                />
+                {errors.title && <span>Title is required and must be at least 3 characters</span>}
                 
-                <div style={{ marginBottom: '20px' }}>
-                    <label 
-                        htmlFor="articleContent" 
-                        style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}
-                    >
-                        Content:
-                    </label>
-                    <textarea
-                        id="articleContent"
-                        value={content}
-                        onChange={e => setContent(e.target.value)}
-                        required
-                        disabled={saving}
-                        rows={12}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            border: '1px solid #ddd',
-                            borderRadius: '4px',
-                            fontSize: '14px',
-                            fontFamily: 'inherit',
-                            resize: 'vertical'
-                        }}
-                        placeholder="Enter article content..."
-                    />
-                </div>
+                <textarea 
+                    placeholder="Article content" 
+                    rows={10}
+                    {...register("content", {required: true, minLength: 10})} 
+                />
+                {errors.content && <span>Content is required and must be at least 10 characters</span>}
                 
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <button
-                        type="submit"
-                        disabled={saving || !title.trim() || !content.trim()}
-                        style={{
-                            padding: '10px 20px',
-                            backgroundColor: saving ? '#ccc' : '#28a745',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: saving ? 'not-allowed' : 'pointer',
-                            fontSize: '14px',
-                            fontWeight: '500'
-                        }}
-                    >
+                <div style={{ marginTop: '20px' }}>
+                    <button type="submit" disabled={saving}>
                         {saving ? 'Saving...' : (mode === 'edit' ? 'Save Changes' : 'Create Article')}
                     </button>
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        disabled={saving}
-                        style={{
-                            padding: '10px 20px',
-                            backgroundColor: '#6c757d',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: saving ? 'not-allowed' : 'pointer',
-                            fontSize: '14px',
-                            fontWeight: '500'
-                        }}
-                    >
+                    <button type="button" onClick={onCancel} disabled={saving}>
                         Cancel
                     </button>
                 </div>
                 
                 {error && (
-                    <div style={{
-                        marginTop: '15px',
-                        padding: '10px',
-                        backgroundColor: '#f8d7da',
-                        color: '#721c24',
-                        border: '1px solid #f5c6cb',
-                        borderRadius: '4px'
-                    }}>
+                    <div style={{ color: 'red', marginTop: '10px' }}>
                         {error}
                     </div>
                 )}

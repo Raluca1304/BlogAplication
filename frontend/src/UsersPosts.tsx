@@ -21,26 +21,35 @@ export function UsersPosts(): JSX.Element {
         if (!id) return;
         
         const token: string | null = localStorage.getItem("jwt");
+        
+        // Create fetch options
+        const fetchOptions: RequestInit = token 
+            ? { headers: { Authorization: `Bearer ${token}` } }
+            : {};
   
-        fetch(`/api/articles?authorId=${id}`, {
-            headers: { Authorization: `Bearer ${token}` }
+        // Fetch articles - should work for everyone
+        fetch(`/api/articles?authorId=${id}`, fetchOptions)
+        .then(res => {
+            if (!res.ok) throw new Error('Failed to fetch articles');
+            return res.json();
         })
-        .then(res => res.json())
         .then((data: Article[]) => setArticles(data))
-        .catch(err => console.error("Eroare la fetch: ", err));
+        .catch(err => console.error("Error fetching articles: ", err));
   
-        fetch(`/api/users/${id}`, {
-            headers: { Authorization: `Bearer ${token}` }
+        // Fetch user info - should work for everyone  
+        fetch(`/api/users/${id}`, fetchOptions)
+        .then(res => {
+            if (!res.ok) throw new Error('Failed to fetch user');
+            return res.json();
         })
-        .then(res => res.json())
         .then((user: User) => {
           if (user && user.firstName && user.lastName) {
-            setUserAuthor(user.lastName);
+            setUserAuthor(`${user.firstName} ${user.lastName}`);
           } else {
-            setUserAuthor("Autor necunoscut");
+            setUserAuthor("Unknown Author");
           }
         })
-        .catch(err => console.error("Eroare la fetch user: ", err));
+        .catch(err => console.error("Error fetching user: ", err));
     }, [id]);
   
     const filteredArticles: Article[] = selectedAuthor
@@ -48,10 +57,16 @@ export function UsersPosts(): JSX.Element {
       : articles;
   
     const currentUser: string | null = localStorage.getItem("username");
+    const isLoggedIn = !!localStorage.getItem("jwt");
 
     const handleDelete = async (articleId: string): Promise<void> => {
       const token: string | null = localStorage.getItem("jwt");
-      if (!window.confirm("Sigur vrei să ștergi acest articol?")) return;
+      if (!token) {
+        alert("You need to be logged in to delete articles!");
+        return;
+      }
+      
+      if (!window.confirm("Are you sure you want to delete this article?")) return;
       
       try {
         const res = await fetch(`/api/articles/${articleId}`, {
@@ -60,47 +75,145 @@ export function UsersPosts(): JSX.Element {
         });
         if (res.ok) {
           setArticles(articles.filter(a => a.id !== articleId));
+          alert("Article deleted successfully!");
         } else {
-          alert("Nu ai voie să ștergi acest articol!");
+          alert("You are not allowed to delete this article!");
         }
       } catch (err) {
-        alert("Eroare la ștergere!");
+        alert("Error deleting article!");
       }
     };
   
     return (
-        <div>
-            <h2 className="author-title">{userAuthor}'s articles</h2>
-            <div className="articles">
-                {Array.isArray(filteredArticles) && filteredArticles.length > 0 ? (
-                  filteredArticles.map((article) => (
-                    <div className="article" key={article.id}>
-                      <div className="title">{article.title}</div>
-                      <div className="author-line">
-                        Created by <span className="author">{article.author}</span>
-                      </div>
-                      <div className="sum">{article.summary}</div>
-                      <NavLink to={`/posts/${article.id}`} className="read-it-all">
-                        Read it all →
-                      </NavLink>
-                      {/* Butonul de ștergere */}
-                      {article.author === currentUser && (
-                        <button
-                          className="delete-btn"
-                          onClick={() => handleDelete(article.id)}
-                        >
-                          Delete
-                        </button>
-                      )}
-                      <div className="created-date">
-                        {new Date(article.createdDate).toLocaleDateString()}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p>Nu există articole pentru acest autor.</p>
-                )}
+        <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+            <div style={{ marginBottom: '20px' }}>
+                <NavLink 
+                    to="/public/posts"
+                    // style={{
+                    //     color: '#007bff',
+                    //     textDecoration: 'none',
+                    //     fontSize: '14px'
+                    // }}
+                >
+                    ← Back to All Posts
+                </NavLink>
             </div>
+            
+            <h2 style={{ marginBottom: '30px', color: '#333' }}>
+                {userAuthor ? `${userAuthor}'s Articles` : 'Loading Author...'}
+            </h2>
+            
+            {Array.isArray(filteredArticles) && filteredArticles.length > 0 ? (
+                <div style={{ 
+                    display: 'grid', 
+                    gap: '20px',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))'
+                }}>
+                    {filteredArticles.map((article) => (
+                        <div 
+                            key={article.id}
+                            style={{
+                                backgroundColor: '#fff',
+                                border: '1px solid #dee2e6',
+                                borderRadius: '8px',
+                                padding: '20px',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                cursor: 'pointer',
+                                position: 'relative'
+                            }}
+                        >
+                            <h3 
+                            >
+                                {article.title}
+                            </h3>
+
+                            <div >
+                               
+                                <span>{new Date(article.createdDate).toLocaleDateString()}</span>
+                            </div>
+
+                            <p style={{ 
+                                margin: '0 0 20px 0',
+                                color: '#555',
+                                lineHeight: '1.6',
+                                fontSize: '14px'
+                            }}>
+                                {article.summary}
+                            </p>
+
+                            <div style={{ 
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                gap: '10px'
+                            }}>
+                                <NavLink 
+                                    to={`/public/posts/${article.id}`}
+                                    style={{
+                                        display: 'inline-block',
+                                        padding: '10px 16px',
+                                        backgroundColor: '#007bff',
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        borderRadius: '4px',
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                        transition: 'background-color 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#0056b3';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#007bff';
+                                    }}
+                                >
+                                    Read Full Article →
+                                </NavLink>
+
+                                {/* Delete button - only for logged in users who own the article */}
+                                {isLoggedIn && article.author === currentUser && (
+                                    <button
+                                        onClick={() => handleDelete(article.id)}
+                                        style={{
+                                            padding: '8px 12px',
+                                            backgroundColor: '#dc3545',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            fontSize: '12px',
+                                            fontWeight: '500',
+                                            cursor: 'pointer',
+                                            transition: 'background-color 0.2s'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.backgroundColor = '#c82333';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.backgroundColor = '#dc3545';
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div style={{
+                    textAlign: 'center',
+                    padding: '40px',
+                    backgroundColor: '#f8f9fa',
+                    borderRadius: '8px',
+                    color: '#666'
+                }}>
+                    {userAuthor ? 
+                        `${userAuthor} hasn't published any articles yet.` : 
+                        'No articles found for this author.'
+                    }
+                </div>
+            )}
         </div>
     );
   } 

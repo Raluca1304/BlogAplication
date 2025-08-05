@@ -12,7 +12,7 @@ export function Layout(): JSX.Element {
 
   return (
     <div className="layout-root">
-      {!isLoginPage && isLoggedIn && (
+      {!isLoginPage && (
         <>
           <div className={`sidebar${sidebarOpen ? ' open' : ''}`}>
             <button className="sidebar-toggle" onClick={() => setSidebarOpen(false)}>
@@ -21,23 +21,58 @@ export function Layout(): JSX.Element {
               </svg>
             </button>
             <nav className="sidebar-nav">
-              {/* Home - visible for ADMIN and AUTHOR */}
-              {(roleUtils.isAdmin(role) || roleUtils.isAuthor(role)) && (
-                <NavLink to="/home" className="sidebar-link">Home</NavLink>
+              {/* Content for logged in users */}
+              {isLoggedIn ? (
+                <>
+                  {/* Home - visible for ADMIN and AUTHOR */}
+                  {(roleUtils.isAdmin(role) || roleUtils.isAuthor(role) || roleUtils.isUser(role)) && (
+                    <NavLink to="/home" className="sidebar-link">Home</NavLink>
+                  )}
+                  {/* <NavLink to="/profile" className="sidebar-link">Profile</NavLink> */}
+                  
+                  {/* Admin Panel - only for ADMIN */}
+                  {roleUtils.isAdmin(role) && (
+                    <NavLink to="/admin/dashboard" className="sidebar-link">
+                      Admin Panel
+                    </NavLink>
+                  )}
+                  
+                  {/* Public Posts - visible for USER and AUTHOR */}
+                  {/* {(roleUtils.isUser(role) || roleUtils.isAuthor(role)) && ( */}
+                    <NavLink to="/public/posts" className="sidebar-link">All Posts</NavLink>
+                  {/* )} */}
+                  
+                  {/* Create article - only for AUTHORS */}
+                  {roleUtils.isAuthor(role) && (
+                    <NavLink to="/create" className="sidebar-link">Create new article</NavLink>
+                  )}
+                  
+                  <div className="sidebar-spacer" />
+                  <LogoutButton />
+                </>
+              ) : (
+                <>
+                  {/* Content for non-logged users */}
+                  <NavLink to="/" className="sidebar-link">Home</NavLink>
+                  <NavLink to="/public/posts" className="sidebar-link"> All Posts</NavLink>
+                  
+                  <div className="sidebar-spacer" />
+                  <NavLink 
+                    to="/login" 
+                    className="sidebar-link"
+                    style={{
+                      backgroundColor: '#007bff',
+                      color: 'white',
+                      textAlign: 'center',
+                      fontWeight: 'bold',
+                      borderRadius: '6px',
+                      margin: '10px'
+                    }}
+                  >
+                    Login / Register
+                  </NavLink>
+                </>
               )}
-              {
-                <NavLink to="/profile" className="sidebar-link">Profile</NavLink>
-              }
-              {/* Admin Panel - only for ADMIN */}
-              {roleUtils.isAdmin(role) && (
-                <NavLink to="/admin/dashboard" className="sidebar-link">
-                  Admin Panel
-                </NavLink>
-              )}
-
-              
-              <div className="sidebar-spacer" />
-              <LogoutButton />
             </nav>
           </div>
           {!sidebarOpen && (
@@ -51,7 +86,7 @@ export function Layout(): JSX.Element {
           )}
         </>
       )}
-      <main className={(!isLoginPage && isLoggedIn) ? 'with-sidebar' : ''}>
+      <main className={!isLoginPage ? 'with-sidebar' : ''}>
         <Outlet />
       </main>
     </div>

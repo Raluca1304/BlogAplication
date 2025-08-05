@@ -10,7 +10,7 @@ export function LogoutButton(): JSX.Element {
     const confirmLogout = window.confirm("Are you sure you want to logout?");
     if (confirmLogout) {
       authService.logout();
-      navigate("/login");
+      navigate("/home");
     }
   };
 

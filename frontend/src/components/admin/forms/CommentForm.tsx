@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Comment } from '../../../types';
+import { useForm } from 'react-hook-form';
 
 interface CommentFormProps {
     commentId?: string;
@@ -18,11 +19,16 @@ export function CommentForm({
     mode,
     showArticleInfo = true 
 }: CommentFormProps) {
-    const [text, setText] = useState<string>(initialData?.text || '');
     const [comment, setComment] = useState<Comment | null>(initialData as Comment || null);
     const [loading, setLoading] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+
+    const { register, handleSubmit, formState: { errors }, setValue } = useForm({
+        defaultValues: {
+            text: initialData?.text || ''
+        }
+    });
 
     useEffect(() => {
         if (mode === 'edit' && commentId && !initialData) {
@@ -35,15 +41,15 @@ export function CommentForm({
                 .then(res => res.json())
                 .then((data: Comment) => {
                     setComment(data);
-                    setText(data.text || '');
+                    setValue('text', data.text || '');
                 })
                 .catch(() => setError('Could not load comment.'))
                 .finally(() => setLoading(false));
         }
-    }, [commentId, initialData, mode]);
+    }, [commentId, initialData, mode, setValue]);
 
-    const handleSave = async () => {
-        if (!text.trim()) {
+    const onSubmit = async (data: any) => {
+        if (!data.text.trim()) {
             setError('Comment text cannot be empty');
             return;
         }
@@ -62,7 +68,7 @@ export function CommentForm({
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ text })
+                body: JSON.stringify({ text: data.text })
             });
 
             if (!response.ok) {
@@ -81,18 +87,14 @@ export function CommentForm({
     };
 
     if (loading) {
-        return (
-            <div style={{ padding: '20px' }}>
-                <p>Loading comment...</p>
-            </div>
-        );
+        return <div>Loading comment...</div>;
     }
 
     return (
         <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
             <h2>{mode === 'edit' ? 'Edit Comment' : 'Create Comment'}</h2>
             
-            {/* Article info section - only show for edit mode with article info */}
+           
             {showArticleInfo && comment && mode === 'edit' && (
                 <div style={{ 
                     marginBottom: '20px', 
@@ -106,79 +108,29 @@ export function CommentForm({
                 </div>
             )}
 
-            <div style={{ marginBottom: '20px' }}>
-                <label 
-                    htmlFor="commentText" 
-                    style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}
-                >
-                    Comment Text:
-                </label>
-                <textarea
-                    id="commentText"
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <textarea 
+                    placeholder="Enter your comment..." 
                     rows={6}
-                    disabled={saving}
-                    style={{
-                        width: '100%',
-                        padding: '10px',
-                        border: '1px solid #ddd',
-                        borderRadius: '4px',
-                        fontSize: '14px',
-                        fontFamily: 'inherit',
-                        resize: 'vertical'
-                    }}
-                    placeholder="Enter your comment..."
+                    {...register("text", {required: true, minLength: 1})} 
                 />
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px' }}>
-                <button
-                    onClick={handleSave}
-                    disabled={saving || !text.trim()}
-                    style={{
-                        padding: '10px 20px',
-                        backgroundColor: saving ? '#ccc' : '#28a745',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: saving ? 'not-allowed' : 'pointer',
-                        fontSize: '14px',
-                        fontWeight: '500'
-                    }}
-                >
-                    {saving ? 'Saving...' : (mode === 'edit' ? 'Save Changes' : 'Create Comment')}
-                </button>
-                <button
-                    onClick={onCancel}
-                    disabled={saving}
-                    style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#6c757d',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: saving ? 'not-allowed' : 'pointer',
-                        fontSize: '14px',
-                        fontWeight: '500'
-                    }}
-                >
-                    Cancel
-                </button>
-            </div>
-            
-            {error && (
-                <div style={{
-                    marginTop: '15px',
-                    padding: '10px',
-                    backgroundColor: '#f8d7da',
-                    color: '#721c24',
-                    border: '1px solid #f5c6cb',
-                    borderRadius: '4px'
-                }}>
-                    {error}
+                {errors.text && <span>Comment text is required</span>}
+                
+                <div style={{ marginTop: '20px' }}>
+                    <button type="submit" disabled={saving}>
+                        {saving ? 'Saving...' : (mode === 'edit' ? 'Save Changes' : 'Create Comment')}
+                    </button>
+                    <button type="button" onClick={onCancel} disabled={saving}>
+                        Cancel
+                    </button>
                 </div>
-            )}
+                
+                {error && (
+                    <div style={{ color: 'red', marginTop: '10px' }}>
+                        {error}
+                    </div>
+                )}
+            </form>
         </div>
     );
 }

@@ -24,7 +24,7 @@ export function Profile() {
                     return;
                 }
 
-                // Fetch all users and find current user by username
+                
                 const usersResponse = await fetch(`/api/users/${currentUsername}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });

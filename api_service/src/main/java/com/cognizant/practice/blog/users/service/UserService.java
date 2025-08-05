@@ -18,12 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 
+import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class UserService {
@@ -51,9 +50,18 @@ public class UserService {
     }
     // Get method on all users
     public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream()
+        System.out.println("buna");
+        // List<UserEntity> usernEnt = userRepository.findAll();
+//        Stream<UserEntity> userEntityStream = userRepository.findAll().stream();
+//        Stream<UserDto> userDtoStream = userEntityStream.map(UserConvertor::toDto);
+       // List<UserDto> userDtos = userDtoStream.toList();
+        List<UserDto> users = userRepository.findAll().stream()
                 .map(UserConvertor::toDto)
-                .collect(Collectors.toList());
+                .toList();
+        // System.out.printf("ajunge aici ");
+
+        return users;
+
     }
 
     public Optional<UserDto> getUserById(UUID id) {
@@ -81,6 +89,21 @@ public class UserService {
             return Optional.of(UserConvertor.toDto(user));
         }
         return Optional.empty();
+    }
+    public Optional<UserDto> updateUser(UUID id , UserRequest userRequest) {
+        Optional<UserEntity> oldUserOpt = userRepository.findById(id);
+        if (oldUserOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        UserEntity oldUser = oldUserOpt.get();
+        oldUser.setFirstName(userRequest.firstName());
+        oldUser.setLastName(userRequest.lastName());
+        oldUser.setUsername(userRequest.username());
+        oldUser.setEmail(userRequest.email());
+
+        oldUser.setRole(userRequest.role());
+        UserEntity savedUser = userRepository.save(oldUser);
+        return Optional.of(UserConvertor.toDto(savedUser));
     }
 
     // Delete a user by id

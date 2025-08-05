@@ -16,13 +16,15 @@ import { User } from './components/admin/Users/User/User';
 import { EditUser } from './components/admin/Users/User/EditUser';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { Profile } from './Profile';
+import { Posts } from './Posts';
+import { AllPosts, PostDetail, PublicHome } from './components/public';
 
 export function BlogApp(): JSX.Element {
   return (
     <BrowserRouter>
         <Routes>
             <Route path="/" element={<Layout />}>
-            <Route index element={<Navigate to="/login" />} />
+            <Route index element={<PublicHome />} />
             <Route path="home" element={<Home />} />
             <Route path="login" element={<Login />} />
             <Route path="profile" element={<Profile />} />
@@ -38,6 +40,9 @@ export function BlogApp(): JSX.Element {
             <Route path="admin/users" element={<Users />} />
             <Route path="admin/users/:id" element={<User />} />
             <Route path="admin/users/:id/edit" element={<EditUser />} />
+            <Route path="public/posts" element={<AllPosts />} />
+            <Route path="public/posts/:id" element={<PostDetail />} />
+            <Route path="public/users/:id" element={<UsersPosts />} />
             </Route>
         </Routes>
     </BrowserRouter>

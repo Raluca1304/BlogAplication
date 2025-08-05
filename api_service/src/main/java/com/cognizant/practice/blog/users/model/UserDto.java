@@ -14,7 +14,6 @@ import java.util.UUID;
 
 
 @Data
-//@AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class UserDto {
@@ -22,11 +21,11 @@ public class UserDto {
     @GeneratedValue (strategy = GenerationType.AUTO)
     private UUID id;
 
+    private String username;
+
     private String firstName;
 
     private String lastName;
-
-    private String username;
 
     private String email;
 
