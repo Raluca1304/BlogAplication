@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Comment } from '../../../types';
 import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 interface CommentFormProps {
     commentId?: string;
@@ -9,6 +11,17 @@ interface CommentFormProps {
     onCancel: () => void;
     mode: 'create' | 'edit';
     showArticleInfo?: boolean;
+}
+
+// Validation schema
+const schema = yup
+  .object({
+    text: yup.string().required('Comment text is required').min(1, 'Comment cannot be empty')
+  })
+  .required();
+
+interface FormData {
+    text: string;
 }
 
 export function CommentForm({ 
@@ -24,7 +37,8 @@ export function CommentForm({
     const [saving, setSaving] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    const { register, handleSubmit, formState: { errors }, setValue } = useForm({
+    const { register, handleSubmit, formState: { errors }, setValue } = useForm<FormData>({
+        resolver: yupResolver(schema),
         defaultValues: {
             text: initialData?.text || ''
         }
@@ -112,9 +126,9 @@ export function CommentForm({
                 <textarea 
                     placeholder="Enter your comment..." 
                     rows={6}
-                    {...register("text", {required: true, minLength: 1})} 
+                    {...register("text")} 
                 />
-                {errors.text && <span>Comment text is required</span>}
+                {errors.text && <span>{errors.text.message}</span>}
                 
                 <div style={{ marginTop: '20px' }}>
                     <button type="submit" disabled={saving}>

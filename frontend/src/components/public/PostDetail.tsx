@@ -136,34 +136,6 @@ export function PostDetail(): JSX.Element {
         }
     };
 
-    const handleDeleteComment = async (commentId: string): Promise<void> => {
-        const token = localStorage.getItem("jwt");
-        
-        if (!token) {
-            setError("You need to be logged in to delete comments.");
-            return;
-        }
-        
-        if (!window.confirm("Are you sure you want to delete this comment?")) return;
-        
-        try {
-            const res = await fetch(`/api/articles/${id}/comments/${commentId}`, {
-                method: "DELETE",
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            
-            if (res.ok) {
-                setComments(comments.filter(c => c.id !== commentId));
-                setSuccess("Comment deleted successfully!");
-            } else {
-                setError("You are not allowed to delete this comment!");
-            }
-        } catch (err) {
-            console.error("Error deleting comment:", err);
-            setError("Error deleting comment!");
-        }
-    };
-
     if (loadingArticle) {
         return (
             <div style={{ padding: '20px', textAlign: 'center' }}>
@@ -248,7 +220,8 @@ export function PostDetail(): JSX.Element {
                     {article.title}
                 </h1>
 
-                <div style={{ 
+                <div
+                style={{ 
                     marginBottom: '30px',
                     paddingBottom: '20px',
                     borderBottom: '1px solid #eee',
@@ -257,7 +230,8 @@ export function PostDetail(): JSX.Element {
                     gap: '15px',
                     fontSize: '14px',
                     color: '#666'
-                }}>
+                }}
+                >
                     <span>By</span>
                     <NavLink 
                         to={`/public/users/${article.authorId}`}
@@ -288,7 +262,6 @@ export function PostDetail(): JSX.Element {
                 </div>
             </article>
 
-            {/* Comments Section - Only for logged in users */}
             {isLoggedIn ? (
                 <div style={{
                     backgroundColor: '#f8f9fa',
@@ -402,22 +375,6 @@ export function PostDetail(): JSX.Element {
                                                 </span>
                                             )}
                                         </div>
-                                        {(currentUser === article.author || currentUser === comment.authorName) && (
-                                            <button
-                                                onClick={() => handleDeleteComment(comment.id)}
-                                                style={{
-                                                    padding: '4px 8px',
-                                                    backgroundColor: '#dc3545',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '3px',
-                                                    cursor: 'pointer',
-                                                    fontSize: '12px'
-                                                }}
-                                            >
-                                                Delete
-                                            </button>
-                                        )}
                                     </div>
                                     <p style={{ 
                                         margin: 0,

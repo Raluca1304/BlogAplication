@@ -80,29 +80,53 @@ public class UserService {
 
     }
 
-    public Optional<UserDto> updateUsersRole(Role role, UUID id) {
+    public Optional<UserDto> updateUserPartial(UserRequest userRequest, UUID id) {
         Optional<UserEntity> userOpt = userRepository.findById(id);
         if (userOpt.isPresent()) {
             UserEntity user = userOpt.get();
-            user.setRole(role);
+            
+            // Only update fields that are not null
+            if (userRequest.role() != null) {
+                user.setRole(userRequest.role());
+            }
+            if (userRequest.email() != null) {
+                user.setEmail(userRequest.email());
+            }
+            if (userRequest.firstName() != null) {
+                user.setFirstName(userRequest.firstName());
+            }
+            if (userRequest.lastName() != null) {
+                user.setLastName(userRequest.lastName());
+            }
+            if (userRequest.username() != null) {
+                user.setUsername(userRequest.username());
+            }
+            // Note: password is not included in partial updates for security
+            
             userRepository.save(user);
             return Optional.of(UserConvertor.toDto(user));
         }
         return Optional.empty();
     }
     public Optional<UserDto> updateUser(UUID id , UserRequest userRequest) {
-        Optional<UserEntity> oldUserOpt = userRepository.findById(id);
-        if (oldUserOpt.isEmpty()) {
-            return Optional.empty();
-        }
-        UserEntity oldUser = oldUserOpt.get();
-        oldUser.setFirstName(userRequest.firstName());
-        oldUser.setLastName(userRequest.lastName());
-        oldUser.setUsername(userRequest.username());
-        oldUser.setEmail(userRequest.email());
-
-        oldUser.setRole(userRequest.role());
-        UserEntity savedUser = userRepository.save(oldUser);
+//        Optional<UserEntity> oldUserOpt = userRepository.findById(id);
+//        if (oldUserOpt.isEmpty()) {
+//            return Optional.empty();
+//        }
+//        UserEntity oldUser = oldUserOpt.get();
+//        oldUser.setFirstName(userRequest.firstName());
+//        oldUser.setLastName(userRequest.lastName());
+//        oldUser.setUsername(userRequest.username());
+//        oldUser.setEmail(userRequest.email());
+//
+//        oldUser.setRole(userRequest.role());
+//        UserEntity savedUser = userRepository.save(oldUser);
+//        return Optional.of(UserConvertor.toDto(savedUser));
+        Optional<UserEntity> oldUser = userRepository.findById(id);
+        UserEntity updatedUser = new UserEntity(id, userRequest.firstName(), userRequest.lastName(),
+                userRequest.username(), userRequest.email(), oldUser.get().getPassword(), oldUser.get().getCreatedDate(),
+                userRequest.role(), oldUser.get().getArticles(), oldUser.get().getComments());
+        UserEntity savedUser = userRepository.save(updatedUser);
         return Optional.of(UserConvertor.toDto(savedUser));
     }
 

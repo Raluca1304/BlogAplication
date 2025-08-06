@@ -14,10 +14,12 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.1",
     "jwt-decoder": "^0.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.62.0",
-    "react-router": "^7.7.0"
+    "react-router": "^7.7.0",
+    "yup": "^1.7.0"
   }
 }

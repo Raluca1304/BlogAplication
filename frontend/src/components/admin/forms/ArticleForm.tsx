@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Post } from '../../../types';
 import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 interface ArticleFormProps {
     articleId?: string;
@@ -8,6 +10,19 @@ interface ArticleFormProps {
     onSave: (article: Post) => void;
     onCancel: () => void;
     mode: 'create' | 'edit';
+}
+
+// Validation schema
+const schema = yup
+  .object({
+    title: yup.string().required('Title is required').min(3, 'Title must be at least 3 characters'),
+    content: yup.string().required('Content is required').min(10, 'Content must be at least 10 characters')
+  })
+  .required();
+
+interface FormData {
+    title: string;
+    content: string;
 }
 
 export function ArticleForm({ 
@@ -21,7 +36,8 @@ export function ArticleForm({
     const [saving, setSaving] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    const { register, handleSubmit, formState: { errors }, setValue } = useForm({
+    const { register, handleSubmit, formState: { errors }, setValue } = useForm<FormData>({
+        resolver: yupResolver(schema),
         defaultValues: {
             title: initialData?.title || '',
             content: initialData?.content || ''
@@ -91,16 +107,16 @@ export function ArticleForm({
                 <input 
                     type="text" 
                     placeholder="Article title" 
-                    {...register("title", {required: true, minLength: 3})} 
+                    {...register("title")} 
                 />
-                {errors.title && <span>Title is required and must be at least 3 characters</span>}
+                {errors.title && <span>{errors.title.message}</span>}
                 
                 <textarea 
                     placeholder="Article content" 
                     rows={10}
-                    {...register("content", {required: true, minLength: 10})} 
+                    {...register("content")} 
                 />
-                {errors.content && <span>Content is required and must be at least 10 characters</span>}
+                {errors.content && <span>{errors.content.message}</span>}
                 
                 <div style={{ marginTop: '20px' }}>
                     <button type="submit" disabled={saving}>

@@ -2,54 +2,260 @@ import React, { JSX, useState } from 'react';
 import { useNavigate } from "react-router";
 import { LoginFormProps, RegisterFormProps } from './types';
 import { authService } from './authService';
-import  { useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+
+
+const loginSchema = yup
+  .object({
+    username: yup.string().required('Username is required').min(3, 'Username must be at least 3 characters'),
+    password: yup.string().required('Password is required')
+  })
+  .required();
+
+
+const registerSchema = yup
+  .object({
+    firstName: yup.string().required('First name is required').min(2, 'First name must be at least 2 characters').max(80, 'First name must be less than 80 characters'),
+    lastName: yup.string().required('Last name is required').min(2, 'Last name must be at least 2 characters').max(100, 'Last name must be less than 100 characters'),
+    email: yup.string().required('Email is required').email('Please enter a valid email'),
+    username: yup.string().required('Username is required').min(6, 'Username must be at least 3 characters'),
+    password: yup.string().required('Password is required')
+  })
+  .required();
+
+interface LoginFormData {
+  username: string;
+  password: string;
+}
+
+interface RegisterFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  password: string;
+}
 
 export function LoginForm({ username, password, setUsername, setPassword, onLogin }: LoginFormProps): JSX.Element {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
+    resolver: yupResolver(loginSchema)
+  });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: LoginFormData) => {
     setUsername(data.username);
     setPassword(data.password);
     await onLogin(data);
   }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <input type="text" placeholder="Username" {...register("username", {required: true})} />
-      <input type="password" placeholder="Password" {...register("password", {required: true})} />
-      <button type="submit">Login</button>
+      <div style={{ marginBottom: '15px' }}>
+        <input 
+          type="text" 
+          placeholder="Username" 
+          {...register("username")} 
+          style={{
+            width: '100%',
+            padding: '12px',
+            border: errors.username ? '1px solid #dc3545' : '1px solid #ddd',
+            borderRadius: '4px',
+            fontSize: '16px',
+            marginBottom: '5px'
+          }}
+        />
+        {errors.username && (
+          <span style={{ color: '#dc3545', fontSize: '14px' }}>
+            {errors.username.message}
+          </span>
+        )}
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <input 
+          type="password" 
+          placeholder="Password" 
+          {...register("password")} 
+          style={{
+            width: '100%',
+            padding: '12px',
+            border: errors.password ? '1px solid #dc3545' : '1px solid #ddd',
+            borderRadius: '4px',
+            fontSize: '16px',
+            marginBottom: '5px'
+          }}
+        />
+        {errors.password && (
+          <span style={{ color: '#dc3545', fontSize: '14px' }}>
+            {errors.password.message}
+          </span>
+        )}
+      </div>
+
+      <button 
+        type="submit"
+        style={{
+          width: '100%',
+          padding: '12px',
+          backgroundColor: '#007bff',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          fontSize: '16px',
+          cursor: 'pointer'
+        }}
+      >
+        Login
+      </button>
     </form>
   );
-  }
+}
   
-  export function RegisterForm({
-    username, password, firstName, lastName, email,
-    setUsername, setPassword, setFirstName, setLastName, setEmail,
-    onRegister
-  }: RegisterFormProps): JSX.Element {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+export function RegisterForm({
+  username, password, firstName, lastName, email,
+  setUsername, setPassword, setFirstName, setLastName, setEmail,
+  onRegister
+}: RegisterFormProps): JSX.Element {
+  const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
+    resolver: yupResolver(registerSchema)
+  });
 
-    const onSubmit = async (data: any) => {
-      setFirstName(data.firstName);
-      setLastName(data.lastName);
-      setEmail(data.email);
-      setUsername(data.username);
-      setPassword(data.password);
+  const onSubmit = async (data: RegisterFormData) => {
+    setFirstName(data.firstName);
+    setLastName(data.lastName);
+    setEmail(data.email);
+    setUsername(data.username);
+    setPassword(data.password);
+    
+    await onRegister(data);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div style={{ marginBottom: '15px' }}>
+        <input 
+          type="text" 
+          placeholder="First name" 
+          {...register("firstName")} 
+          style={{
+            width: '100%',
+            padding: '12px',
+            border: errors.firstName ? '1px solid #dc3545' : '1px solid #ddd',
+            borderRadius: '4px',
+            fontSize: '16px',
+            marginBottom: '5px'
+          }}
+        />
+        {errors.firstName && (
+          <span style={{ color: '#dc3545', fontSize: '14px' }}>
+            {errors.firstName.message}
+          </span>
+        )}
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <input 
+          type="text" 
+          placeholder="Last name" 
+          {...register("lastName")} 
+          style={{
+            width: '100%',
+            padding: '12px',
+            border: errors.lastName ? '1px solid #dc3545' : '1px solid #ddd',
+            borderRadius: '4px',
+            fontSize: '16px',
+            marginBottom: '5px'
+          }}
+        />
+        {errors.lastName && (
+          <span style={{ color: '#dc3545', fontSize: '14px' }}>
+            {errors.lastName.message}
+          </span>
+        )}
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <input 
+          type="email" 
+          placeholder="Email" 
+          {...register("email")} 
+          style={{
+            width: '100%',
+            padding: '12px',
+            border: errors.email ? '1px solid #dc3545' : '1px solid #ddd',
+            borderRadius: '4px',
+            fontSize: '16px',
+            marginBottom: '5px'
+          }}
+        />
+        {errors.email && (
+          <span style={{ color: '#dc3545', fontSize: '14px' }}>
+            {errors.email.message}
+          </span>
+        )}
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <input 
+          type="text" 
+          placeholder="Username" 
+          {...register("username")} 
+          style={{
+            width: '100%',
+            padding: '12px',
+            border: errors.username ? '1px solid #dc3545' : '1px solid #ddd',
+            borderRadius: '4px',
+            fontSize: '16px',
+            marginBottom: '5px'
+          }}
+        />
+        {errors.username && (
+          <span style={{ color: '#dc3545', fontSize: '14px' }}>
+            {errors.username.message}
+          </span>
+        )}
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <input 
+          type="password" 
+          placeholder="Password" 
+          {...register("password")} 
+          style={{
+            width: '100%',
+            padding: '12px',
+            border: errors.password ? '1px solid #dc3545' : '1px solid #ddd',
+            borderRadius: '4px',
+            fontSize: '16px',
+            marginBottom: '5px'
+          }}
+        />
+        {errors.password && (
+          <span style={{ color: '#dc3545', fontSize: '14px' }}>
+            {errors.password.message}
+          </span>
+        )}
+      </div>
       
-      await onRegister(data);
-    };
-
-    return (
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <input type="text" placeholder="First name" {...register("firstName", {required: true, maxLength: 80})} />
-        <input type="text" placeholder="Last name" {...register("lastName", {required: true, maxLength: 100})} />
-        <input type="text" placeholder="Email" {...register("email", {required: true, pattern: /^\S+@\S+$/i})} />
-        <input type="text" placeholder="Username" {...register("username", {required: true})} />
-        <input type="password" placeholder="Password" {...register("password", {required: true})} />
-        
-        <button type="submit">Register</button>
-      </form>
-    )
-  }
+      <button 
+        type="submit"
+        style={{
+          width: '100%',
+          padding: '12px',
+          backgroundColor: '#28a745',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          fontSize: '16px',
+          cursor: 'pointer'
+        }}
+      >
+        Register
+      </button>
+    </form>
+  )
+}
   
   export function Login(): JSX.Element {
     const [username, setUsername] = useState<string>('');

@@ -119,10 +119,7 @@ public class CommentService {
         CommentEntity comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
         
-        // Check if user is the author of the comment
-        if (!comment.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to delete this comment");
-        }
+        // Check if user is the author of the commenT
         
         commentRepository.delete(comment);
     }

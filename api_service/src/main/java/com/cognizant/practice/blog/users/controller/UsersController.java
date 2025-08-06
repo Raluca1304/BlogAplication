@@ -95,9 +95,18 @@ public class UsersController {
         return userService.createNewUser(userRequest);
     }
 
-    @PutMapping(value = "/users/{id}/role", consumes = "text/plain")
-    public Optional<UserDto> updateRole(@PathVariable UUID id, Role role) {
-        return userService.updateUsersRole(role, id);
+//    @PutMapping(value = "/users/{id}/role", consumes = "text/plain")
+//    public Optional<UserDto> updateRole(@PathVariable UUID id, Role role) {
+//        return userService.updateUsersRole(role, id);
+//    }
+    @PutMapping(value = "/users/{id}")
+    public Optional<UserDto> updateUser(@PathVariable UUID id, @RequestBody UserRequest userRequest) {
+        return userService.updateUser(id, userRequest);
+    }
+
+    @PatchMapping(value = "/users/{id}")
+    public Optional<UserDto> updateUserPartial(@PathVariable UUID id, @RequestBody UserRequest userRequest) {
+        return userService.updateUserPartial(userRequest, id);
     }
 
 }
