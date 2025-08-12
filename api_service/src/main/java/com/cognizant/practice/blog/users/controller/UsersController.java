@@ -64,11 +64,13 @@ public class UsersController {
             String token = authHeader.substring(7); // Remove "Bearer " prefix
             String username = jwtService.extractUsername(token);
             String role = jwtService.extractRole(token);
-            
             return ResponseEntity.ok(new JwtDto(token, role, username));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+       
+
+
     }
 
     @GetMapping(value = "/users")

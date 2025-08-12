@@ -17,11 +17,25 @@ export function CreateArticle() {
 
   const handleSave = (article: any) => {
     alert("Successfully created article!");
-    navigate('/admin/articles');
+    const role: string | null = localStorage.getItem('role');
+    
+    // Redirect authors to posts page, admins to admin articles page
+    if (role == 'ROLE_AUTHOR') {
+      navigate('/public/posts');
+    } else {
+      navigate('/admin/articles');
+    }
   };
 
   const handleCancel = () => {
-    navigate('/admin/articles');
+    const role: string | null = localStorage.getItem('role');
+    
+    // Redirect authors to posts page, admins to admin articles page
+    if (role === 'ROLE_AUTHOR') {
+      navigate('/public/posts');
+    } else {
+      navigate('/admin/articles');
+    }
   };
 
   return (

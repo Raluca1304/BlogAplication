@@ -1,5 +1,6 @@
 package com.cognizant.practice.blog.articles.service;
 
+
 import com.cognizant.practice.blog.articles.convertor.ArticleConvertor;
 import com.cognizant.practice.blog.articles.model.ArticleDto;
 import com.cognizant.practice.blog.articles.model.ArticleEntity;
@@ -7,13 +8,13 @@ import com.cognizant.practice.blog.articles.model.ArticleRequest;
 import com.cognizant.practice.blog.articles.repository.ArticleRepository;
 import com.cognizant.practice.blog.users.model.UserEntity;
 import com.cognizant.practice.blog.users.repository.UserRepository;
-import org.apache.tomcat.Jar;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -50,6 +51,22 @@ public class ArticleService {
     }
 
     public List<ArticleDto> getAllArticlesWithLimits(Pageable pageable, String title) {
+        return articleRepository.findAll(pageable).stream()
+                .map(article -> new ArticleDto(
+                        article.getId(),
+                        article.getTitle(),
+                        article.getContent(),
+                        article.getCreatedDate(),
+                        article.getUpdatedDate(),
+                        article.getAuthor().getUsername(),
+                        article.getSummmary(),
+                        article.getAuthor().getId()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<ArticleDto> getLatestArticles(int limit) {
+        Pageable pageable = PageRequest.of(0, limit, Sort.by("createdDate").descending());
         return articleRepository.findAll(pageable).stream()
                 .map(article -> new ArticleDto(
                         article.getId(),

@@ -3,7 +3,11 @@ import { useParams } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { User } from '../../../../types';
+import { User, FormDataUser } from '../../../../types';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const ROLES = ['ROLE_USER', 'ROLE_AUTHOR', 'ROLE_ADMIN'];
 
@@ -17,13 +21,6 @@ const schema = yup
   })
   .required();
 
-interface FormData {
-    username: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    role: string;
-}
 
 export function EditUser() {
     const { id } = useParams<{ id: string }>();
@@ -38,7 +35,7 @@ export function EditUser() {
         formState: { errors }, 
         setValue,
         watch 
-    } = useForm<FormData>({
+    } = useForm<FormDataUser>({
         resolver: yupResolver(schema),
         defaultValues: {
             username: '',
@@ -76,7 +73,7 @@ export function EditUser() {
         }
     }, [id, setValue]);
 
-    const onSubmit = async (data: FormData) => {
+    const onSubmit = async (data: FormDataUser) => {
         setSaving(true);
         setError(null);
         const token = localStorage.getItem('jwt');
@@ -95,11 +92,17 @@ export function EditUser() {
                 throw new Error('Failed to update user');
             }
 
-            alert('User updated successfully!');
+            <Alert variant="default">  
+                <AlertTitle>Success</AlertTitle>
+                <AlertDescription>User updated successfully!</AlertDescription>
+            </Alert>
             window.location.href = `/admin/users/${id}`;
         } catch (err: any) {
             console.error('Error updating user:', err);
-            setError(`Failed to update user: ${err.message}`);
+            <Alert variant="destructive">
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>Failed to update user: {err.message}</AlertDescription>
+            </Alert> 
         } finally {
             setSaving(false);
         }
@@ -115,23 +118,23 @@ export function EditUser() {
 
     if (error && !user) {
         return (
-            <div style={{ padding: '20px' }}>
+            <div className="p-4">
                 <h2>Error</h2>
-                <p style={{ color: 'red' }}>{error}</p>
-                <button onClick={() => window.location.href = '/admin/users'}>
+                <p className="text-red-500">{error}</p>
+                <Button variant="burgundy" onClick={() => window.location.href = '/admin/users'} className="mb-4">
                     Back to Users
-                </button>
+                </Button>
             </div>
         );
     }
 
     if (!user) {
         return (
-            <div style={{ padding: '20px' }}>
+            <div className="p-4">
                 <h2>User not found</h2>
-                <button onClick={() => window.location.href = '/admin/users'}>
+                <Button variant="burgundy" onClick={() => window.location.href = '/admin/users'} className="mb-4">
                     Back to Users
-                </button>
+                </Button>
             </div>
         );
     }
@@ -145,175 +148,113 @@ export function EditUser() {
     );
 
     return (
-        <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+        <div className="p-4 max-w-2xl mx-auto">
             <h2>Edit User: {user.username}</h2>
             
-            <div style={{ 
-                backgroundColor: '#f8f9fa', 
-                padding: '20px', 
-                borderRadius: '8px',
-                border: '1px solid #dee2e6',
-                marginBottom: '20px'
-            }}>
+            <div className="mb-4">
                 <p><strong>Note:</strong> You can edit all user fields. Changes will be saved when you click "Save Changes".</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)}>
-                <div style={{ marginBottom: '20px' }}>
-                    <input 
+                <div>
+                    <Input 
                         type="text" 
                         placeholder="Username" 
                         {...register("username")} 
-                        style={{
-                            width: '100%',
-                            padding: '12px',
-                            border: errors.username ? '1px solid #dc3545' : '1px solid #ddd',
-                            borderRadius: '4px',
-                            fontSize: '16px',
-                            marginBottom: '5px'
-                        }}
+                        className="mb-4"
                     />
                     {errors.username && (
-                        <span style={{ color: '#dc3545', fontSize: '14px' }}>
+                        <span className="text-red-500 text-sm">
                             {errors.username.message}
                         </span>
                     )}
                 </div>
                 
-                <div style={{ marginBottom: '20px' }}>
-                    <input 
+                <div className="mb-4">
+                    <Input 
                         type="text" 
                         placeholder="First name" 
                         {...register("firstName")} 
-                        style={{
-                            width: '100%',
-                            padding: '12px',
-                            border: errors.firstName ? '1px solid #dc3545' : '1px solid #ddd',
-                            borderRadius: '4px',
-                            fontSize: '16px',
-                            marginBottom: '5px'
-                        }}
+                        className="mb-4"
                     />
                     {errors.firstName && (
-                        <span style={{ color: '#dc3545', fontSize: '14px' }}>
+                        <span className="text-red-500 text-sm">
                             {errors.firstName.message}
                         </span>
                     )}
                 </div>
                 
-                <div style={{ marginBottom: '20px' }}>
-                    <input 
+                <div>
+                    <Input 
                         type="text" 
                         placeholder="Last name" 
                         {...register("lastName")} 
-                        style={{
-                            width: '100%',
-                            padding: '12px',
-                            border: errors.lastName ? '1px solid #dc3545' : '1px solid #ddd',
-                            borderRadius: '4px',
-                            fontSize: '16px',
-                            marginBottom: '5px'
-                        }}
+                        className="mb-4"
                     />
                     {errors.lastName && (
-                        <span style={{ color: '#dc3545', fontSize: '14px' }}>
+                        <span className="text-red-500 text-sm">
                             {errors.lastName.message}
                         </span>
                     )}
                 </div>
                 
-                <div style={{ marginBottom: '20px' }}>
-                    <input 
+                <div>
+                        <Input 
                         type="email" 
                         placeholder="Email" 
+                        className="mb-4"
                         {...register("email")} 
-                        style={{
-                            width: '100%',
-                            padding: '12px',
-                            border: errors.email ? '1px solid #dc3545' : '1px solid #ddd',
-                            borderRadius: '4px',
-                            fontSize: '16px',
-                            marginBottom: '5px'
-                        }}
                     />
                     {errors.email && (
-                        <span style={{ color: '#dc3545', fontSize: '14px' }}>
+                        <span className="text-red-500 text-sm">
                             {errors.email.message}
                         </span>
                     )}
                 </div>
                 
-                <div style={{ marginBottom: '20px' }}>
-                    <select 
+                <div>
+                    <Select 
                         {...register("role")}
-                        style={{
-                            width: '100%',
-                            padding: '12px',
-                            border: errors.role ? '1px solid #dc3545' : '1px solid #ddd',
-                            borderRadius: '4px',
-                            fontSize: '16px',
-                            marginBottom: '5px',
-                            backgroundColor: 'white'
-                        }}
                     >
-                        {ROLES.map(roleOption => (
-                            <option key={roleOption} value={roleOption}>
-                                {roleOption.replace('ROLE_', '')}
-                            </option>
-                        ))}
-                    </select>
+                        <SelectTrigger className="w-[120px] mb-4">
+                            <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {ROLES.map(role => (
+                                <SelectItem key={role} value={role}>
+                                    {role.replace('ROLE_', '')}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                     {errors.role && (
-                        <span style={{ color: '#dc3545', fontSize: '14px' }}>
+                        <span className="text-red-500 text-sm">
                             {errors.role.message}
                         </span>
                     )}
                 </div>
                 
-                <div style={{ display: 'flex', gap: '10px', marginTop: '30px' }}>
-                    <button 
+                <div>
+                    <Button 
                         type="submit" 
                         disabled={saving || !hasChanges}
-                        style={{
-                            padding: '12px 24px',
-                            backgroundColor: saving || !hasChanges ? '#ccc' : '#28a745',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: saving || !hasChanges ? 'not-allowed' : 'pointer',
-                            fontSize: '16px',
-                            fontWeight: '500'
-                        }}
+                        variant="greenDark"
                     >
                         {saving ? 'Saving...' : 'Save Changes'}
-                    </button>
-                    <button 
+                    </Button>
+                    <Button 
                         type="button" 
                         onClick={handleCancel} 
                         disabled={saving}
-                        style={{
-                            padding: '12px 24px',
-                            backgroundColor: '#6c757d',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: saving ? 'not-allowed' : 'pointer',
-                            fontSize: '16px',
-                            fontWeight: '500'
-                        }}
+                        variant="redDark"
+                        className="ml-4"
                     >
                         Cancel
-                    </button>
+                    </Button>
                 </div>
                 
                 {error && (
-                    <div style={{ 
-                        color: 'red', 
-                        marginTop: '15px',
-                        padding: '10px',
-                        backgroundColor: '#f8d7da',
-                        border: '1px solid #f5c6cb',
-                        borderRadius: '4px'
-                    }}>
+                    <div className="text-red-500 mt-4 p-2 bg-red-50 border border-red-200 rounded">
                         {error}
                     </div>
                 )}

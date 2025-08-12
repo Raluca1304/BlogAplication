@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User } from './types';
+import { Button } from '@/components/ui/button';
 
 export function Profile() {
     const [user, setUser] = useState<User | null>(null);
@@ -61,7 +62,7 @@ export function Profile() {
 
     if (loading) {
         return (
-            <div style={{ padding: '20px', textAlign: 'center' }}>
+            <div>
                 <h2>Loading Profile...</h2>
             </div>
         );
@@ -69,151 +70,91 @@ export function Profile() {
 
     if (error) {
         return (
-            <div style={{ padding: '20px' }}>
+            <div >
                 <h2>Error</h2>
-                <p style={{ color: 'red' }}>{error}</p>
-                <button onClick={() => window.location.href = '/home'}>
+                <p className="text-red-500">{error}</p>
+                <Button variant="burgundy" onClick={() => window.location.href = '/home'}>
                     Back to Home
-                </button>
+                </Button>
             </div>
         );
     }
 
     if (!user) {
         return (
-            <div style={{ padding: '20px' }}>
+            <div>
                 <h2>User not found</h2>
-                <button onClick={() => window.location.href = '/home'}>
+                <Button variant="burgundy" onClick={() => window.location.href = '/home'}>
                     Back to Home
-                </button>
+                </Button>
             </div>
         );
     }
 
     return (
-        <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+        <div>
+            <div>
                 <h1>My Profile</h1>
-                <p style={{ color: '#666' }}>Your account information</p>
+                <p>Your account information</p>
             </div>
             
-            <div style={{ 
-                backgroundColor: '#f8f9fa', 
-                padding: '30px', 
-                borderRadius: '8px',
-                border: '1px solid #dee2e6'
-            }}>
-                <div style={{ marginBottom: '20px' }}>
+            <div>
+                <div>
                     <strong>User ID:</strong>
-                    <div style={{ 
-                        marginTop: '5px', 
-                        padding: '8px', 
-                        backgroundColor: 'white', 
-                        border: '1px solid #ddd',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        fontFamily: 'monospace'
-                    }}>
+                    <div>
                         {user.id}
                     </div>
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
+                <div>
                     <strong>Username:</strong>
-                    <div style={{ 
-                        marginTop: '5px', 
-                        padding: '8px', 
-                        backgroundColor: 'white', 
-                        border: '1px solid #ddd',
-                        borderRadius: '4px'
-                    }}>
+                    <div>
                         {user.username}
                     </div>
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
+                <div>
                     <strong>First Name:</strong>
-                    <div style={{ 
-                        marginTop: '5px', 
-                        padding: '8px', 
-                        backgroundColor: 'white', 
-                        border: '1px solid #ddd',
-                        borderRadius: '4px'
-                    }}>
+                    <div>
                         {user.firstName}
                     </div>
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
+                <div>
                     <strong>Last Name:</strong>
-                    <div style={{ 
-                        marginTop: '5px', 
-                        padding: '8px', 
-                        backgroundColor: 'white', 
-                        border: '1px solid #ddd',
-                        borderRadius: '4px'
-                    }}>
+                        <div>
                         {user.lastName}
                     </div>
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
+                <div>
                     <strong>Email:</strong>
-                    <div style={{ 
-                        marginTop: '5px', 
-                        padding: '8px', 
-                        backgroundColor: 'white', 
-                        border: '1px solid #ddd',
-                        borderRadius: '4px'
-                    }}>
+                    <div>
                         {user.email}
                     </div>
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
+                <div>
                     <strong>Role:</strong>
-                    <div style={{ marginTop: '5px' }}>
-                        <span style={{
-                            padding: '6px 12px',
-                            borderRadius: '4px',
-                            fontSize: '14px',
-                            fontWeight: 'bold',
-                            backgroundColor: 
-                                user.role === 'ROLE_ADMIN' ? '#dc3545' :
-                                user.role === 'ROLE_AUTHOR' ? '#28a745' : '#007bff',
-                            color: 'white'
-                        }}>
+                    <div>
+                        <span>
                             {user.role?.replace('ROLE_', '') || 'USER'}
                         </span>
                     </div>
                 </div>
             </div>
 
-            <div style={{ 
-                marginTop: '30px', 
-                textAlign: 'center',
-                padding: '20px',
-                backgroundColor: '#e9ecef',
-                borderRadius: '8px'
-            }}>
-                <h3 style={{ marginBottom: '10px' }}>Account Actions</h3>
-                <p style={{ color: '#666', fontSize: '14px', marginBottom: '15px' }}>
+            <div>
+                <h3>Account Actions</h3>
+                <p>
                     Contact an administrator to modify your profile information
                 </p>
-                <button
+                <Button
                     onClick={() => window.location.href = '/home'}
-                    style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '14px'
-                    }}
+                    variant="burgundy"
                 >
                     Back to Home
-                </button>
+                </Button>
             </div>
         </div>
     );

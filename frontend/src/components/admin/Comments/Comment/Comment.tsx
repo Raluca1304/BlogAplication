@@ -2,6 +2,7 @@ import React, { useState, useEffect, JSX } from 'react';
 import { useParams } from "react-router";
 import { Comment as CommentType } from '../../../../types';
 import { CommentForm } from '../../forms/CommentForm';
+import { Button } from '@/components/ui/button';
 
 export function Comment(): JSX.Element {
     const { id } = useParams<{ id: string }>();
@@ -21,6 +22,7 @@ export function Comment(): JSX.Element {
         setIsEditing(false);
     };
 
+    // Get the comment from the API
     const handleView = async (commentId: string) => {
         const token: string | null = localStorage.getItem("jwt");
         
@@ -47,12 +49,11 @@ export function Comment(): JSX.Element {
 
     if (!comment) {
         return (
-            <div style={{ padding: '20px' }}>
+            <div className="p-4">
                 <p>Loading comment...</p>
             </div>
         );
     }
-
 
     if (isEditing && comment) {
         return (
@@ -68,22 +69,15 @@ export function Comment(): JSX.Element {
     }
 
     return (
-        <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div className="p-4 max-w-2xl mx-auto">
+            <div className="flex justify-between items-center mb-4">
                 <h2>Comment Details</h2>
-                <button
+                <Button
+                    variant="greenDark"
                     onClick={handleEditClick}
-                    style={{
-                        padding: '8px 16px',
-                        backgroundColor: '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                    }}
                 >
                     Edit Comment
-                </button>
+                </Button>
             </div>
             <div>
                 <p><strong>ID:</strong> {comment.id}</p>
@@ -91,7 +85,7 @@ export function Comment(): JSX.Element {
                 <p><strong>Article:</strong> {comment.article.title}</p>
                 <p><strong>Created:</strong> {new Date(comment.createdDate).toLocaleString()}</p>
                 <p><strong>Text:</strong></p>
-                <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '5px', backgroundColor: '#f9f9f9', marginTop: '10px' }}>
+                <div className="border border-gray-300 rounded-md p-4 bg-gray-100 mt-2">
                     {comment.text}
                 </div>
             </div>

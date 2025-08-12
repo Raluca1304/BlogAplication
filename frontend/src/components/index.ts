@@ -1,3 +1,3 @@
 export * from './admin/Actions/ActionButtons';
 export * from './admin/forms';
-export * from './Pagination';
+export * from './admin/Actions/Pagination';

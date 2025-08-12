@@ -1,12 +1,13 @@
 import React, { JSX, useState } from 'react';
 import { useNavigate } from "react-router";
-import { LoginFormProps, RegisterFormProps } from './types';
+import { LoginFormProps, RegisterFormProps } from '../../types';
 import { authService } from './authService';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-
-
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 const loginSchema = yup
   .object({
     username: yup.string().required('Username is required').min(3, 'Username must be at least 3 characters'),
@@ -24,6 +25,8 @@ const registerSchema = yup
     password: yup.string().required('Password is required')
   })
   .required();
+
+
 
 interface LoginFormData {
   username: string;
@@ -51,63 +54,44 @@ export function LoginForm({ username, password, setUsername, setPassword, onLogi
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div style={{ marginBottom: '15px' }}>
-        <input 
+      <div 
+      className="mb-4"
+      >
+        <Input
+          variant="user"
           type="text" 
           placeholder="Username" 
           {...register("username")} 
-          style={{
-            width: '100%',
-            padding: '12px',
-            border: errors.username ? '1px solid #dc3545' : '1px solid #ddd',
-            borderRadius: '4px',
-            fontSize: '16px',
-            marginBottom: '5px'
-          }}
         />
         {errors.username && (
-          <span style={{ color: '#dc3545', fontSize: '14px' }}>
+          <span className="text-red-500 text-sm">
             {errors.username.message}
           </span>
         )}
       </div>
 
-      <div style={{ marginBottom: '15px' }}>
-        <input 
+      <div 
+      className="mb-4"
+      >
+        <Input 
+          variant="lock"
           type="password" 
           placeholder="Password" 
           {...register("password")} 
-          style={{
-            width: '100%',
-            padding: '12px',
-            border: errors.password ? '1px solid #dc3545' : '1px solid #ddd',
-            borderRadius: '4px',
-            fontSize: '16px',
-            marginBottom: '5px'
-          }}
         />
         {errors.password && (
-          <span style={{ color: '#dc3545', fontSize: '14px' }}>
+          <span className="text-red-500 text-sm">
             {errors.password.message}
           </span>
         )}
       </div>
 
-      <button 
+      <Button 
         type="submit"
-        style={{
-          width: '100%',
-          padding: '12px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          fontSize: '16px',
-          cursor: 'pointer'
-        }}
+        variant="navy"
       >
         Login
-      </button>
+      </Button>
     </form>
   );
 }
@@ -115,6 +99,7 @@ export function LoginForm({ username, password, setUsername, setPassword, onLogi
 export function RegisterForm({
   username, password, firstName, lastName, email,
   setUsername, setPassword, setFirstName, setLastName, setEmail,
+  setShowRegister,
   onRegister
 }: RegisterFormProps): JSX.Element {
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
@@ -129,131 +114,99 @@ export function RegisterForm({
     setPassword(data.password);
     
     await onRegister(data);
+    
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div style={{ marginBottom: '15px' }}>
-        <input 
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-center">Register</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)}>
+      <div 
+      className="mb-4"
+      >
+        <Input 
           type="text" 
           placeholder="First name" 
           {...register("firstName")} 
-          style={{
-            width: '100%',
-            padding: '12px',
-            border: errors.firstName ? '1px solid #dc3545' : '1px solid #ddd',
-            borderRadius: '4px',
-            fontSize: '16px',
-            marginBottom: '5px'
-          }}
         />
         {errors.firstName && (
-          <span style={{ color: '#dc3545', fontSize: '14px' }}>
+          <span className="text-red-500 text-sm">
             {errors.firstName.message}
           </span>
         )}
       </div>
 
-      <div style={{ marginBottom: '15px' }}>
-        <input 
+      <div 
+      className="mb-4"
+      >
+        <Input 
           type="text" 
           placeholder="Last name" 
           {...register("lastName")} 
-          style={{
-            width: '100%',
-            padding: '12px',
-            border: errors.lastName ? '1px solid #dc3545' : '1px solid #ddd',
-            borderRadius: '4px',
-            fontSize: '16px',
-            marginBottom: '5px'
-          }}
         />
         {errors.lastName && (
-          <span style={{ color: '#dc3545', fontSize: '14px' }}>
+          <span className="text-red-500 text-sm">
             {errors.lastName.message}
           </span>
         )}
       </div>
 
-      <div style={{ marginBottom: '15px' }}>
-        <input 
+      <div 
+      className="mb-4"
+      >
+        <Input 
           type="email" 
           placeholder="Email" 
           {...register("email")} 
-          style={{
-            width: '100%',
-            padding: '12px',
-            border: errors.email ? '1px solid #dc3545' : '1px solid #ddd',
-            borderRadius: '4px',
-            fontSize: '16px',
-            marginBottom: '5px'
-          }}
         />
         {errors.email && (
-          <span style={{ color: '#dc3545', fontSize: '14px' }}>
+          <span className="text-red-500 text-sm">
             {errors.email.message}
           </span>
         )}
       </div>
 
-      <div style={{ marginBottom: '15px' }}>
-        <input 
+      <div 
+      className="mb-4"
+      >
+        <Input 
           type="text" 
           placeholder="Username" 
           {...register("username")} 
-          style={{
-            width: '100%',
-            padding: '12px',
-            border: errors.username ? '1px solid #dc3545' : '1px solid #ddd',
-            borderRadius: '4px',
-            fontSize: '16px',
-            marginBottom: '5px'
-          }}
         />
         {errors.username && (
-          <span style={{ color: '#dc3545', fontSize: '14px' }}>
+          <span className="text-red-500 text-sm">
             {errors.username.message}
           </span>
         )}
       </div>
 
-      <div style={{ marginBottom: '15px' }}>
-        <input 
+        <div 
+      className="mb-4"
+      >
+        <Input 
           type="password" 
           placeholder="Password" 
           {...register("password")} 
-          style={{
-            width: '100%',
-            padding: '12px',
-            border: errors.password ? '1px solid #dc3545' : '1px solid #ddd',
-            borderRadius: '4px',
-            fontSize: '16px',
-            marginBottom: '5px'
-          }}
         />
         {errors.password && (
-          <span style={{ color: '#dc3545', fontSize: '14px' }}>
+            <span className="text-red-500 text-sm">
             {errors.password.message}
           </span>
         )}
       </div>
-      
-      <button 
-        type="submit"
-        style={{
-          width: '100%',
-          padding: '12px',
-          backgroundColor: '#28a745',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          fontSize: '16px',
-          cursor: 'pointer'
-        }}
-      >
-        Register
-      </button>
-    </form>
+        <CardFooter className="px-0 flex gap-2">
+          <Button type="submit" variant="greenDark">Register</Button>
+        </CardFooter>
+        <CardFooter>
+          <h2>Already have an account? <Button variant="navy" onClick={() => setShowRegister(false)}>Login</Button></h2>
+        </CardFooter>
+        </form>
+      </CardContent>
+    </Card>
   )
 }
   
@@ -323,11 +276,17 @@ export function RegisterForm({
         lastName: dataToUse.lastName,
         email: dataToUse.email
       });
+      if (username === dataToUse.username || email === dataToUse.email) {
+        setErrorMessage("Username or email already exists");
+        setIsLoading(false);
+        return;
+      }
+
       if (response.token !== null) {
         setSuccessMessage('Registration successful. Please login.');
         navigate('/home');
       } else {
-        setErrorMessage('Registration failed. Please try again.');
+        setErrorMessage("Registration failed. Please try again.");
       }
       
     } catch (err) {
@@ -338,18 +297,17 @@ export function RegisterForm({
   };
   
     return (
-      <div className="login-page">
-        <div className="login-card">
-          <h2>{showRegister ? "Register" : "Login"}</h2>
-  
+
+      <div className="flex justify-center items-center h-screen">
+        <div className="p-4 max-w-2xl mx-auto mt-10">
           {errorMessage && (
-            <div style={{ color: 'red', marginBottom: '10px', padding: '10px'}}>
+            <div className="text-red-500 text-sm">
               {errorMessage}
             </div>
           )}
 
           {successMessage && (
-            <div style={{ color: 'green', marginBottom: '10px', padding: '10px' }}>
+            <div className="text-green-500 text-sm">
               {successMessage}
             </div>
           )}
@@ -366,55 +324,34 @@ export function RegisterForm({
               setFirstName={setFirstName}
               setLastName={setLastName}
               setEmail={setEmail}
+              setShowRegister={setShowRegister}
               onRegister={handleRegister}
             />
           ) : (
-            <LoginForm
-              username={username}
-              password={password}
-              setUsername={setUsername}
-              setPassword={setPassword}
-              onLogin={handleLogin}
-            />
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-center">Login</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <LoginForm
+                  username={username}
+                  password={password}
+                  setUsername={setUsername}
+                  setPassword={setPassword}
+                  onLogin={handleLogin}
+                />
+              </CardContent>
+              <CardFooter>
+                <h2>Don't have an account? <Button variant="greenDark" onClick={() => setShowRegister(true)}>Register</Button></h2>
+              </CardFooter>
+            </Card>
           )}
 
           {isLoading && (
-            <div style={{ textAlign: 'center', margin: '10px 0' }}>
+            <div className="text-center mt-2">
               <span>Loading...</span>
             </div>
           )}
-        
-          <div className="toggle-auth">
-            {showRegister ? (
-              <p>
-                Already have an account?{' '}
-                <span 
-                  className="toggle-link" 
-                  onClick={() => {
-                    setShowRegister(false);
-                    setErrorMessage('');
-                    setSuccessMessage('');
-                  }}
-                >
-                  Login
-                </span>
-              </p>
-            ) : (
-              <p>
-                Don't have an account?{' '}
-                <span 
-                  className="toggle-link" 
-                  onClick={() => {
-                    setShowRegister(true);
-                    setErrorMessage('');
-                    setSuccessMessage('');
-                  }}
-                >
-                  Register
-                </span>
-              </p>
-            )}
-          </div>
         </div>
       </div>
     );

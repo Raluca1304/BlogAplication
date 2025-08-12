@@ -35,28 +35,28 @@ export function Posts(): JSX.Element {
 
    return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: 16 }}>
+      <div className="flex justify-end items-center mb-4">
       </div>
-      <h2 className="author-title">All Articles</h2>
+      <h2 className="text-2xl font-bold">All Articles</h2>
       <div className="articles">
         {filteredArticles.map((article) => (
           <div className="article" key={article.id}>
             <div className="title">{article.title}</div>
 
-            <div className="author-line">
+            <div className="text-gray-600">
               Created by{' '}
               <NavLink to={`/users/${article.authorId}`} className="author">
                 {article.author}
               </NavLink>
             </div>
 
-            <div className="sum">{article.summary}</div>
+            <div className="text-gray-600">{article.summary}</div>
 
             <NavLink to={`/posts/${article.id}`} className="read-it-all">
               Read it all →
             </NavLink>
 
-            <div className="created-date">
+            <div className="text-gray-600">
               {new Date(article.createdDate).toLocaleDateString()}
             </div>
             

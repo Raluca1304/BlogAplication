@@ -50,7 +50,7 @@ public class UserService {
     }
     // Get method on all users
     public List<UserDto> getAllUsers() {
-        System.out.println("buna");
+//        System.out.println("buna");
         // List<UserEntity> usernEnt = userRepository.findAll();
 //        Stream<UserEntity> userEntityStream = userRepository.findAll().stream();
 //        Stream<UserDto> userDtoStream = userEntityStream.map(UserConvertor::toDto);
@@ -73,6 +73,12 @@ public class UserService {
     // Create new user
     public String createNewUser(UserRequest userRequest) {
         String encodedPassword = passwordEncoder.encode(userRequest.password());
+        if (userRepository.findByUsername(userRequest.username()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username already exists");
+        }
+         if (userRepository.findByEmail(userRequest.email()).isPresent()) {
+             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+         }
         UserEntity userEntity = new UserEntity(null, userRequest.firstName(), userRequest.lastName(),
                 userRequest.username(), userRequest.email(), encodedPassword, LocalDateTime.now(), Role.ROLE_USER, null, null);
         String tokenToReturn = jwtService.generateToken(userRepository.save(userEntity));

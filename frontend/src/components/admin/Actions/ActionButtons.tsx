@@ -1,66 +1,19 @@
+// Used for admin actions, i.e. edit, delete, view, for users, articles, comments
 import React from 'react';
+import { ActionButtonProps, ActionButtonGroupProps } from '../../../types';
+import { Button } from '@/components/ui/button';
 
-interface ActionButtonProps {
-    onClick: () => void;
-    type: 'edit' | 'delete' | 'view';
-    children: React.ReactNode;
-    disabled?: boolean;
-}
-
+// children is the content of the button, i.e. Edit, Delete, View
+// disabled is a boolean that determines if the button is disabled(false - for active button, true - for disabled button)
 export function ActionButton({ onClick, type, children, disabled = false }: ActionButtonProps) {
-    const getButtonStyle = () => {
-        const baseStyle = {
-            padding: '6px 12px',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: disabled ? 'not-allowed' : 'pointer',
-            opacity: disabled ? 0.6 : 1,
-            fontSize: '14px',
-            fontWeight: '500'
-        };
-
-        switch (type) {
-            case 'edit':
-                return {
-                    ...baseStyle,
-                    backgroundColor: disabled ? '#ccc' : '#007bff',
-                    marginRight: '8px'
-                };
-            case 'delete':
-                return {
-                    ...baseStyle,
-                    backgroundColor: disabled ? '#ccc' : '#dc3545',
-                    marginRight: '8px'
-                };
-            case 'view':
-                return {
-                    ...baseStyle,
-                    backgroundColor: disabled ? '#ccc' : '#6c757d'
-                };
-            default:
-                return baseStyle;
-        }
-    };
-
     return (
         <button
             onClick={onClick}
             disabled={disabled}
-            style={getButtonStyle()}
         >
             {children}
         </button>
     );
-}
-
-interface ActionButtonGroupProps {
-    onEdit?: () => void;
-    onDelete?: () => void;
-    onView?: () => void;
-    showEdit?: boolean;
-    showDelete?: boolean;
-    showView?: boolean;
 }
 
 export function ActionButtonGroup({ 
@@ -72,21 +25,21 @@ export function ActionButtonGroup({
     showView = true 
 }: ActionButtonGroupProps) {
     return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="flex gap-2">
             {showEdit && onEdit && (
-                <ActionButton onClick={onEdit} type="edit">
+                <Button onClick={onEdit} variant="navy">
                     Edit
-                </ActionButton>
+                </Button>
             )}
             {showDelete && onDelete && (
-                <ActionButton onClick={onDelete} type="delete">
+                <Button onClick={onDelete} variant="redDark">
                     Delete
-                </ActionButton>
+                </Button>
             )}
             {showView && onView && (
-                <ActionButton onClick={onView} type="view">
+                <Button onClick={onView} variant="beige">
                     View
-                </ActionButton>
+                </Button>
             )}
         </div>
     );

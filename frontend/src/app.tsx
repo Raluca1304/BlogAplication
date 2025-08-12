@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client';
-import { BlogApp } from './BlogApp';
+import { BlogApp } from '../BlogApp';
 
 document.body.innerHTML = '<div id="app"></div>';
 const rootElement = document.getElementById('app');

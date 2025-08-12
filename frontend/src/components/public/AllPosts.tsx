@@ -1,13 +1,25 @@
 import React, { useState, useEffect, JSX } from 'react';
-import { NavLink } from "react-router";
+import { NavLink, useSearchParams } from "react-router";
 import { Article } from '../../types';
-
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export function AllPosts(): JSX.Element {
+    const [searchParams] = useSearchParams();
     const [articles, setArticles] = useState<Article[]>([]);
     const [selectedAuthor, setSelectedAuthor] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const searchQuery = searchParams.get('search') || '';
+    const searchBy = searchParams.get('searchBy') || '';
 
     useEffect(() => {
         setLoading(true);
@@ -33,7 +45,7 @@ export function AllPosts(): JSX.Element {
 
     if (loading) {
         return (
-            <div style={{ padding: '20px', textAlign: 'center' }}>
+            <div className="p-4 text-center">
                 <h2>Loading articles...</h2>
             </div>
         );
@@ -41,12 +53,12 @@ export function AllPosts(): JSX.Element {
 
     if (error) {
         return (
-            <div style={{ padding: '20px' }}>
+            <div className="p-4">
                 <h2>Error</h2>
-                <p style={{ color: 'red' }}>{error}</p>
-                <button onClick={() => window.location.reload()}>
+                <p className="text-red-500">{error}</p>
+                <Button onClick={() => window.location.reload()}>
                     Try Again
-                </button>
+                </Button>
             </div>
         );
     }
@@ -55,109 +67,84 @@ export function AllPosts(): JSX.Element {
         articles.map(a => a.author).filter(a => a && a.trim() !== "")
     )).sort((a, b) => a.localeCompare(b));
     
-    const filteredArticles: Article[] = selectedAuthor
-        ? articles.filter(a => a.author === selectedAuthor)
-        : articles;
+    const filteredArticles: Article[] = articles.filter(article => {
+        // Filter by author if selected
+        if (selectedAuthor && article.author !== selectedAuthor) {
+            return false;
+        }
+        
+        // Filter by search query if provided
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            // Search only by title
+            return article.title.toLowerCase().includes(query);
+        }
+        
+        return true;
+    });
 
     return (
-        <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center', 
-                marginBottom: '30px',
-                flexWrap: 'wrap',
-                gap: '20px'
-            }}>
-                <h1 style={{ margin: 0 }}>All Articles</h1>
-                
-                {/* Author Filter */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <label htmlFor="authorFilter" style={{ fontWeight: 'bold' }}>
-                        Filter by Author:
-                    </label>
-                    <select
-                        id="authorFilter"
-                        value={selectedAuthor || ''}
-                        onChange={(e) => setSelectedAuthor(e.target.value || null)}
-                        style={{
-                            padding: '8px 12px',
-                            border: '1px solid #ddd',
-                            borderRadius: '4px',
-                            fontSize: '14px',
-                            backgroundColor: 'white',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <option value="">All Authors ({articles.length} articles)</option>
-                        {authors.map((author) => (
-                            <option key={author} value={author}>
-                                {author} ({articles.filter(a => a.author === author).length})
-                            </option>
-                        ))}
-                    </select>
-                    {selectedAuthor && (
-                        <button
-                            onClick={() => setSelectedAuthor(null)}
-                            style={{
-                                padding: '8px 12px',
-                                backgroundColor: '#6c757d',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: '14px'
-                            }}
-                        >
-                            Clear
-                        </button>
-                    )}
-                </div>
+        <div className="p-4 max-w-4xl mx-auto">
+            <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
+                <h1 className="m-0">All Articles</h1>
+                {!searchQuery && (
+                    <div className="flex items-center gap-2">
+                        <p className="font-bold">
+                            Filter by Author
+                        </p>
+                        <Select value={selectedAuthor || ''} onValueChange={(value) => setSelectedAuthor(value || null)}>
+                            <SelectTrigger className="w-[280px]">
+                                <SelectValue placeholder="Select an author" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Authors</SelectLabel>
+                                    <SelectItem value="all">All Authors ({articles.length} articles)</SelectItem>
+                                    {authors.map((author) => (
+                                        <SelectItem key={author} value={author}>
+                                            {author} ({articles.filter(a => a.author === author).length})
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                        {selectedAuthor && (
+                            <Button
+                                onClick={() => setSelectedAuthor(null)}
+                                variant="outline"
+                            >
+                                Clear
+                            </Button>
+                        )}
+                    </div>
+                )}
             </div>
 
-            {selectedAuthor && (
-                <div style={{ 
-                    marginBottom: '20px', 
-                    padding: '10px', 
-                    backgroundColor: '#e9ecef', 
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                }}>
-                    Showing {filteredArticles.length} article{filteredArticles.length !== 1 ? 's' : ''} by <strong>{selectedAuthor}</strong>
+            {(selectedAuthor || searchQuery) && (
+                <div className="mb-4 p-4 bg-gray-100 rounded-md border border-gray-300">
+                    {selectedAuthor && searchQuery ? (
+                        <>Showing {filteredArticles.length} article{filteredArticles.length !== 1 ? 's' : ''} by <strong>{selectedAuthor}</strong> matching "<strong>{searchQuery}</strong>"</>
+                    ) : selectedAuthor ? (
+                        <>Showing {filteredArticles.length} article{filteredArticles.length !== 1 ? 's' : ''} by <strong>{selectedAuthor}</strong></>
+                    ) : (
+                        <>Showing {filteredArticles.length} article{filteredArticles.length !== 1 ? 's' : ''} matching "<strong>{searchQuery}</strong>"</>
+                    )}
                 </div>
             )}
 
             {filteredArticles.length === 0 ? (
-                <div style={{ 
-                    textAlign: 'center', 
-                    padding: '40px', 
-                    backgroundColor: '#f8f9fa',
-                    borderRadius: '8px',
-                    color: '#666'
-                }}>
+                <div className="text-center p-4 bg-gray-100 rounded-md border border-gray-300">
                     {selectedAuthor ? 
                         `No articles found by ${selectedAuthor}` : 
                         'No articles available yet.'
                     }
                 </div>
             ) : (
-                <div style={{ 
-                    display: 'grid', 
-                    gap: '20px',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))'
-                }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {filteredArticles.map((article) => (
                         <div 
                             key={article.id}
-                            style={{
-                                backgroundColor: '#fff',
-                                border: '1px solid #dee2e6',
-                                borderRadius: '8px',
-                                padding: '20px',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                                transition: 'transform 0.2s, box-shadow 0.2s',
-                                cursor: 'pointer'
-                            }}
+                            className="p-4 bg-white rounded-md border border-gray-300 transition-all duration-200 cursor-pointer"
                             onMouseEnter={(e) => {
                                 e.currentTarget.style.transform = 'translateY(-2px)';
                                 e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
@@ -167,31 +154,15 @@ export function AllPosts(): JSX.Element {
                                 e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
                             }}
                         >
-                            <h3 style={{ 
-                                margin: '0 0 15px 0', 
-                                color: '#333',
-                                fontSize: '1.3em',
-                                lineHeight: '1.4'
-                            }}>
+                            <h3 className="mb-4 text-lg font-semibold">
                                 {article.title}
                             </h3>
 
-                            <div style={{ 
-                                marginBottom: '15px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px',
-                                fontSize: '14px',
-                                color: '#666'
-                            }}>
+                            <div className="mb-4 flex items-center gap-2 text-sm text-gray-600">
                                 <span>Created by</span>
                                 <NavLink 
                                     to={`/public/users/${article.authorId}`} 
-                                    style={{
-                                        color: '#007bff',
-                                        textDecoration: 'none',
-                                        fontWeight: '600'
-                                    }}
+                                    className="text-beige hover:text-beige"
                                 >
                                     {article.author}
                                 </NavLink>
@@ -199,37 +170,17 @@ export function AllPosts(): JSX.Element {
                                 <span>{new Date(article.createdDate).toLocaleDateString()}</span>
                             </div>
 
-                            <p style={{ 
-                                margin: '0 0 20px 0',
-                                color: '#555',
-                                lineHeight: '1.6',
-                                fontSize: '14px'
-                            }}>
+                            <p className="mb-4 text-gray-600">
                                 {article.summary}
                             </p>
 
-                            <NavLink 
-                                to={`/public/posts/${article.id}`}
-                                style={{
-                                    display: 'inline-block',
-                                    padding: '10px 16px',
-                                    backgroundColor: '#007bff',
-                                    color: 'white',
-                                    textDecoration: 'none',
-                                    borderRadius: '4px',
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                    transition: 'background-color 0.2s'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#0056b3';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#007bff';
-                                }}
-                            >
+                            <Button variant="navy">
+                                <NavLink 
+                                to={`/public/posts/${article.id}`}>
                                 Read Full Article →
-                            </NavLink>
+                                </NavLink>
+                            </Button>
+                            
                         </div>
                     ))}
                 </div>

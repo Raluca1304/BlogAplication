@@ -2,6 +2,7 @@ import React from "react";
 import { useParams, useNavigate } from 'react-router';
 import { ArticleForm } from "../../..";
 import type { Post } from "../../../../types";
+import { Button } from "@/components/ui/button";
 
 export function EditArticle(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();
@@ -17,10 +18,10 @@ export function EditArticle(): React.JSX.Element {
 
   if (!id) {
     return (
-      <div style={{ padding: '20px' }}>
+      <div className="p-4">
         <h2>Error</h2>
         <p>Article ID is required</p>
-        <button onClick={handleCancel}>Go Back</button>
+        <Button onClick={handleCancel} variant="outline">Go Back</Button>
       </div>
     );
   }

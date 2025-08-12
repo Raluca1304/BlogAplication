@@ -1,4 +1,4 @@
-import { JwtResponse, UserPermissions, roleUtils } from './types';
+import { JwtResponse, UserPermissions, roleUtils } from '../../types';
 
 class AuthService {
   private readonly TOKEN_KEY = 'jwt';

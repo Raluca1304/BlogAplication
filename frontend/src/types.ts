@@ -1,3 +1,23 @@
+export interface ActionButtonProps {
+  onClick: () => void;
+  type: 'edit' | 'delete' | 'view';
+  children: React.ReactNode;
+  disabled?: boolean;
+}
+
+export interface ActionButtonGroupProps {
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onView?: () => void;
+  showEdit?: boolean;
+  showDelete?: boolean;
+  showView?: boolean;
+}
+
+export interface EditCommentProps {
+  commentId: string;
+}
+
 export interface User {
   id: string;
   username: string;
@@ -92,9 +112,43 @@ export interface RegisterFormProps {
   setFirstName: (firstName: string) => void;
   setLastName: (lastName: string) => void;
   setEmail: (email: string) => void;
+  setShowRegister: (show: boolean) => void;
   onRegister: (formData?: any) => void;
 }
 
+export interface ArticleFormProps {
+  articleId?: string;
+  initialData?: Partial<Post>;
+  onSave: (article: Post) => void;
+  onCancel: () => void;
+  mode: 'create' | 'edit';
+}
+
+export interface FormDataArticle {
+  title: string;
+  content: string;
+}
+
+export interface CommentFormProps {
+  commentId?: string;
+  initialData?: Partial<Comment>;
+  onSave: (comment: Comment) => void;
+  onCancel: () => void;
+  mode: 'create' | 'edit';
+  showArticleInfo?: boolean;
+}
+
+export interface FormDataComment {
+  text: string;
+}
+
+export interface FormDataUser {
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+}
 
 export const roleUtils = {
   isAdmin: (role: string | null): boolean => role === ROLES.ADMIN,
@@ -105,3 +159,9 @@ export const roleUtils = {
   canManageUsers: (role: string | null): boolean => role === ROLES.ADMIN,
   canEditAllArticles: (role: string | null): boolean => role === ROLES.ADMIN,
 }; 
+
+export interface DashboardStats {
+  articlesCount: number;
+  commentsCount: number;
+  usersCount: number;
+}

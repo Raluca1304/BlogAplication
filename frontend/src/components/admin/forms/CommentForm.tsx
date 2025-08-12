@@ -1,17 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Comment } from '../../../types';
+import { Comment, CommentFormProps, FormDataComment } from '../../../types';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-
-interface CommentFormProps {
-    commentId?: string;
-    initialData?: Partial<Comment>;
-    onSave: (comment: Comment) => void;
-    onCancel: () => void;
-    mode: 'create' | 'edit';
-    showArticleInfo?: boolean;
-}
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { NavLink } from 'react-router';
 
 // Validation schema
 const schema = yup
@@ -19,10 +13,6 @@ const schema = yup
     text: yup.string().required('Comment text is required').min(1, 'Comment cannot be empty')
   })
   .required();
-
-interface FormData {
-    text: string;
-}
 
 export function CommentForm({ 
     commentId, 
@@ -37,7 +27,7 @@ export function CommentForm({
     const [saving, setSaving] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    const { register, handleSubmit, formState: { errors }, setValue } = useForm<FormData>({
+    const { register, handleSubmit, formState: { errors }, setValue } = useForm<FormDataComment>({
         resolver: yupResolver(schema),
         defaultValues: {
             text: initialData?.text || ''
@@ -105,42 +95,40 @@ export function CommentForm({
     }
 
     return (
-        <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-            <h2>{mode === 'edit' ? 'Edit Comment' : 'Create Comment'}</h2>
-            
-           
+        <div className="p-4 max-w-2xl mx-auto">
+
+            <h2>{mode === 'edit' ? 'Edit Comment' : 'Create Comment'}</h2>           
             {showArticleInfo && comment && mode === 'edit' && (
-                <div style={{ 
-                    marginBottom: '20px', 
-                    padding: '15px', 
-                    backgroundColor: '#f5f5f5', 
-                    borderRadius: '5px' 
-                }}>
+                <div className="mb-4 p-4 bg-gray-100 rounded-md border border-gray-300">
                     <p><strong>Article:</strong> {comment.article.title}</p>
                     <p><strong>Author:</strong> {comment.authorName}</p>
                     <p><strong>Created:</strong> {new Date(comment.createdDate).toLocaleString()}</p>
                 </div>
             )}
 
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <textarea 
-                    placeholder="Enter your comment..." 
-                    rows={6}
-                    {...register("text")} 
-                />
-                {errors.text && <span>{errors.text.message}</span>}
+            <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+                <div className="mb-4 w-full">
+                    <Textarea 
+                        placeholder="Enter your comment..." 
+                        className="w-full"
+                        {...register("text")} 
+                    />
+                    {errors.text && <span className="text-red-500 text-sm">{errors.text.message}</span>}
+                </div>
                 
-                <div style={{ marginTop: '20px' }}>
-                    <button type="submit" disabled={saving}>
+                <div className="mt-4">
+                    <Button type="submit" disabled={saving} variant="greenDark" className="mr-2">
                         {saving ? 'Saving...' : (mode === 'edit' ? 'Save Changes' : 'Create Comment')}
-                    </button>
-                    <button type="button" onClick={onCancel} disabled={saving}>
-                        Cancel
-                    </button>
+                    </Button>
+                    <Button type="button" onClick={onCancel} disabled={saving} variant="redDark" className="mr-2">
+                        <NavLink to="/admin/comments">
+                            Cancel
+                        </NavLink>
+                    </Button>
                 </div>
                 
                 {error && (
-                    <div style={{ color: 'red', marginTop: '10px' }}>
+                    <div className="text-red-500 mt-2">
                         {error}
                     </div>
                 )}

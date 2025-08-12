@@ -3,11 +3,7 @@ package com.cognizant.practice.blog.articles.controller;
 import com.cognizant.practice.blog.articles.model.ArticleDto;
 import com.cognizant.practice.blog.articles.model.ArticleRequest;
 import com.cognizant.practice.blog.articles.service.ArticleService;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -63,6 +59,14 @@ public class ArticlesController {
         } else {
             return articleService.getAllArticles();
         }
+    }
+
+    @GetMapping("/articles/latest")
+    public List<ArticleDto> getLatestArticles(@RequestParam(defaultValue = "4") int limit) {
+        if (limit <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "limit must be positive");
+        }
+        return articleService.getLatestArticles(limit);
     }
 
 

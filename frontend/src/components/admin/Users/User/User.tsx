@@ -1,6 +1,7 @@
 import React, { useState, useEffect, JSX } from 'react';
 import { useParams } from "react-router";
 import { User as UserType } from '../../../../types';
+import { Button } from '@/components/ui/button';
 
 export function User(): JSX.Element {
     const { id } = useParams<{ id: string }>();
@@ -30,7 +31,7 @@ export function User(): JSX.Element {
 
     if (loading) {
         return (
-            <div style={{ padding: '20px' }}>
+            <div className="p-4">
                 <p>Loading user...</p>
             </div>
         );
@@ -38,68 +39,49 @@ export function User(): JSX.Element {
 
     if (error) {
         return (
-            <div style={{ padding: '20px' }}>
+            <div className="p-4">
                 <h2>Error</h2>
-                <p style={{ color: 'red' }}>{error}</p>
-                <button onClick={() => window.location.href = '/admin/users'}>
+                <p className="text-red-500">{error}</p>
+                <Button variant="burgundy" onClick={() => window.location.href = '/admin/users'}>
                     Back to Users
-                </button>
+                </Button>
             </div>
         );
     }
 
     if (!user) {
         return (
-            <div style={{ padding: '20px' }}>
+            <div className="p-4">
                 <h2>User not found</h2>
-                <button onClick={() => window.location.href = '/admin/users'}>
+                <Button variant="burgundy" onClick={() => window.location.href = '/admin/users'}>
                     Back to Users
-                </button>
+                </Button>
             </div>
         );
     }
 
     return (
-        <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div className="p-4 max-w-2xl mx-auto">
+            <div className="flex justify-between items-center mb-4">
                 <h2>User Details</h2>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <button
+                <div className="flex gap-2">
+                    <Button
                         onClick={() => window.location.href = `/admin/users/${user.id}/edit`}
-                        style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#007bff',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                        }}
+                        variant="yellow"
                     >
                         Edit User
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         onClick={() => window.location.href = '/admin/users'}
-                        style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#6c757d',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                        }}
+                        variant="burgundy"
                     >
                         Back to Users
-                    </button>
+                    </Button>
                 </div>
             </div>
             
-            <div style={{ 
-                backgroundColor: '#f8f9fa', 
-                padding: '20px', 
-                borderRadius: '8px',
-                border: '1px solid #dee2e6'
-            }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div className="p-4 bg-gray-100 rounded-md border border-gray-300">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <p><strong>ID:</strong> {user.id}</p>
                         <p><strong>Username:</strong> {user.username}</p>
@@ -109,17 +91,7 @@ export function User(): JSX.Element {
                     <div>
                         <p><strong>Email:</strong> {user.email}</p>
                         <p><strong>Role:</strong> 
-                            <span style={{
-                                marginLeft: '10px',
-                                padding: '4px 8px',
-                                borderRadius: '4px',
-                                fontSize: '12px',
-                                fontWeight: 'bold',
-                                backgroundColor: 
-                                    user.role === 'ROLE_ADMIN' ? '#dc3545' :
-                                    user.role === 'ROLE_AUTHOR' ? '#28a745' : '#007bff',
-                                color: 'white'
-                            }}>
+                            <span className="ml-2 px-2 py-1 rounded-md text-sm font-bold bg-gray-200 text-gray-800">
                                 {user.role?.replace('ROLE_', '') || 'USER'}
                             </span>
                         </p>

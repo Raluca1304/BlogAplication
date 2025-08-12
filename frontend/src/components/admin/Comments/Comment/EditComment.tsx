@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Comment } from '../../../../types';
+import { Comment, EditCommentProps } from '../../../../types';
 import { CommentForm } from '../../..';
-
-interface EditCommentProps {
-    commentId: string;
-}
 
 export function EditComment({ commentId }: EditCommentProps) {
     const handleSave = (comment: Comment) => {
@@ -29,7 +25,6 @@ export function EditComment({ commentId }: EditCommentProps) {
     );
 }
 
-// Simple standalone page component for direct URL access
 export function EditCommentPage() {
     const [commentId, setCommentId] = useState<string | null>(null);
 
@@ -44,12 +39,11 @@ export function EditCommentPage() {
 
     if (!commentId) {
         return (
-            <div style={{ padding: '20px' }}>
+            <div className="p-4">
                 <h2>Invalid comment ID</h2>
                 <p>Could not extract comment ID from URL</p>
             </div>
         );
     }
-
     return <EditComment commentId={commentId} />;
 }

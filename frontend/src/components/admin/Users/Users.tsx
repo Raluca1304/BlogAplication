@@ -1,8 +1,157 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '../../../types';
-import { ActionButtonGroup, Pagination, usePagination } from '../..';
+import { ActionButtonGroup } from '../Actions';
+// import { Pagination, usePagination } from '../Actions';
+import { Button } from '@/components/ui/button';
+import { 
+    Pagination, 
+    PaginationContent, 
+    PaginationItem, 
+    PaginationLink, 
+    PaginationNext, 
+    PaginationPrevious 
+} from '@/components/ui/pagination';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const ROLES = ['ROLE_USER', 'ROLE_AUTHOR', 'ROLE_ADMIN'];
+
+// Custom hook pentru logica de paginare
+function usePagination(itemsPerPage: number = 5) {
+    const [currentPage, setCurrentPage] = React.useState(1);
+
+    const getPaginatedData = (data: any[]) => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return data.slice(startIndex, endIndex);
+    };
+
+    const resetPage = () => setCurrentPage(1);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    // Reset page when data changes dramatically (like after delete)
+    const adjustPageForDataLength = (dataLength: number) => {
+        const totalPages = Math.ceil(dataLength / itemsPerPage);
+        if (currentPage > totalPages && totalPages > 0) {
+            setCurrentPage(totalPages);
+        }
+    };
+
+    return {
+        currentPage,
+        itemsPerPage,
+        getPaginatedData,
+        handlePageChange,
+        resetPage,
+        adjustPageForDataLength
+    };
+}
+
+// Componenta de paginare custom care folosește UI components
+function CustomPagination({ 
+    currentPage, 
+    totalItems, 
+    itemsPerPage, 
+    onPageChange, 
+    itemName 
+}: {
+    currentPage: number;
+    totalItems: number;
+    itemsPerPage: number;
+    onPageChange: (page: number) => void;
+    itemName: string;
+}) {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+
+    // Don't render pagination if there's only one page or no items
+    if (totalPages <= 1) {
+        return null;
+    }
+
+    // Generate page numbers to show
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisible = 5;
+        
+        if (totalPages <= maxVisible) {
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            if (currentPage <= 3) {
+                for (let i = 1; i <= 4; i++) {
+                    pages.push(i);
+                }
+                pages.push('ellipsis');
+                pages.push(totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pages.push(1);
+                pages.push('ellipsis');
+                for (let i = totalPages - 3; i <= totalPages; i++) {
+                    pages.push(i);
+                }
+            } else {
+                pages.push(1);
+                pages.push('ellipsis');
+                for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                    pages.push(i);
+                }
+                pages.push('ellipsis');
+                pages.push(totalPages);
+            }
+        }
+        
+        return pages;
+    };
+
+    return (
+        <div
+        className="flex flex-col items-center gap-4 mt-4 p-4">
+            <div className="text-sm text-gray-600">
+                Showing {startIndex + 1}-{endIndex} of {totalItems} {itemName}
+            </div>
+            
+            <Pagination>
+                <PaginationContent>
+                    <PaginationItem>
+                        <PaginationPrevious 
+                            onClick={() => onPageChange(currentPage - 1)}
+                            className={`${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        />
+                    </PaginationItem>
+                    
+                    {getPageNumbers().map((page, index) => (
+                        <PaginationItem key={index}>
+                            {page === 'ellipsis' ? (
+                                <span className="px-2">...</span>
+                            ) : (
+                                <PaginationLink
+                                    onClick={() => onPageChange(page as number)}
+                                    isActive={currentPage === page}
+                                    className="cursor-pointer min-w-10 text-center"
+                                >
+                                    {page}
+                                </PaginationLink>
+                            )}
+                        </PaginationItem>
+                    ))}
+                    
+                    <PaginationItem>
+                        <PaginationNext 
+                            onClick={() => onPageChange(currentPage + 1)}
+                            className={`${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        />
+                    </PaginationItem>
+                </PaginationContent>
+            </Pagination>
+        </div>
+    );
+}
 
 export function Users() {
     const [users, setUsers] = useState<User[]>([]);
@@ -44,11 +193,13 @@ export function Users() {
     }, []);
 
     const handleDelete = async (userId: string): Promise<void> => {
-        const token: string | null = localStorage.getItem("jwt");
+        const token  = localStorage.getItem("jwt");
         if (!window.confirm("Are you sure you want to delete this user?")) return;
-        
+        console.log("Token:", token);
+        console.log("User ID:", userId);
+
         try {
-            const res = await fetch(`/users/${userId}`, {
+            const res = await fetch(`/api/users/${userId}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -135,8 +286,8 @@ export function Users() {
         return user.role === roleFilter;
     });
 
-    const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setRoleFilter(event.target.value);
+    const handleFilterChange = (value: string | null) => {
+        setRoleFilter(value || '');
         handlePageChange(1);
     };
 
@@ -147,66 +298,50 @@ export function Users() {
 
     const currentUsers = getPaginatedData(filteredUsers);
 
-    if (loading) return <div style={{ padding: '20px' }}>Loading users...</div>;
-    if (error) return <div style={{ padding: '20px', color: 'red' }}>Error: {error}</div>;
+    if (loading) return <div className="p-4">Loading users...</div>;
+    if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
 
     return (
         <div>
             <h2>Manage Users</h2>
             
             {/* Secțiunea de filtrare */}
-            <div style={{ 
-                marginBottom: '20px', 
-                padding: '15px', 
-                backgroundColor: '#f8f9fa', 
-                borderRadius: '5px',
-                border: '1px solid #dee2e6'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <label htmlFor="roleFilter" style={{ fontWeight: 'bold', minWidth: '120px' }}>
-                        Filter by Role:
-                    </label>
-                    <select
-                        id="roleFilter"
+            <div
+            className="mb-4 p-4 bg-gray-100 rounded-md"
+            >
+                <div className="flex items-center gap-4">
+                    <p className="font-bold">
+                        Filter by Role
+                    </p>
+                    <Select
                         value={roleFilter}
-                        onChange={handleFilterChange}
-                        style={{
-                            flex: 1,
-                            padding: '8px 12px',
-                            border: '1px solid #ddd',
-                            borderRadius: '4px',
-                            fontSize: '14px',
-                            backgroundColor: 'white',
-                            cursor: 'pointer'
-                        }}
+                        onValueChange={(value) => handleFilterChange(value || null)}
                     >
-                        <option value="">All Roles</option>
+                        <SelectTrigger className="w-[280px]">
+                            <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectLabel>Roles</SelectLabel>
+                       
                         {ROLES.map((role) => (
-                            <option key={role} value={role}>
+                            <SelectItem key={role} value={role}>
                                 {role.replace('ROLE_', '')}
-                            </option>
+                            </SelectItem>
                         ))}
-                    </select>
+                        </SelectGroup>
+                    </SelectContent>
+                    </Select>
                     {roleFilter && (
-                        <button
-                            onClick={handleClearFilter}
-                            style={{
-                                padding: '8px 12px',
-                                backgroundColor: '#6c757d',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: '14px'
-                            }}
-                        >
+                        <Button
+                            onClick={handleClearFilter}>
                             Clear
-                        </button>
+                        </Button>
                     )}
                 </div>
                 
                 {roleFilter && (
-                    <div style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
+                    <div className="mt-2 text-sm text-gray-600">
                         Showing {filteredUsers.length} of {users.length} users 
                         with role: "<strong>{roleFilter.replace('ROLE_', '')}</strong>"
                     </div>
@@ -214,97 +349,85 @@ export function Users() {
             </div>
 
             {filteredUsers.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+                <div className="text-center p-4 text-gray-600">
                     {roleFilter ? 
                         `No users found with role "${roleFilter.replace('ROLE_', '')}"` : 
                         'No users found.'
                     }
                 </div>
             ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-                    <thead>
-                        <tr style={{ backgroundColor: '#f5f5f5' }}>
-                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>ID</th>
-                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Username</th>
-                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>First name</th>
-                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Last name</th>
-                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Email</th>
-                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Role</th>
-                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Change Role</th>
-                            <th style={{ border: '1px solid #ddd', padding: '20px', textAlign: 'center' }}>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <Table className="w-full border-collapse mt-4">
+                    <TableHeader>
+                        <TableRow className="bg-gray-100">
+                            <TableHead className="border border-gray-300 p-3 text-center">ID</TableHead>
+                            <TableHead className="border border-gray-300 p-3 text-center">Username</TableHead>
+                            <TableHead className="border border-gray-300 p-3 text-center">First name</TableHead>
+                            <TableHead className="border border-gray-300 p-3 text-center">Last name</TableHead>
+                            <TableHead className="border border-gray-300 p-3 text-center">Email</TableHead>
+                            <TableHead className="border border-gray-300 p-3 text-center">Role</TableHead>
+                            <TableHead className="border border-gray-300 p-3 text-center">Change Role</TableHead>
+                            <TableHead className="border border-gray-300 p-3 text-center">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {currentUsers.map((user) => (
-                            <tr key={user.id}>
-                                <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                            <TableRow key={user.id}>
+                                <TableCell className="border border-gray-300 p-3">
                                     {user.id}
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                                </TableCell>
+                                <TableCell className="border border-gray-300 p-3">
                                      {/* aici am lastname care de fapt este username */}
                                     {user.username}
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                                    </TableCell>
+                                <TableCell className="border border-gray-300 p-3">
                                     {/* aici am username care de fapt este firstName */}
                                     {user.firstName} 
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                                </TableCell>
+                                <TableCell className="border border-gray-300 p-3">
                                     {/* aici am firstName care de fapt este lastName */}
                                     {user.lastName}
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                                </TableCell>
+                                    <TableCell className="border border-gray-300 p-3">
                                     {user.email}
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '12px' }}>
-                                    <span style={{
-                                        padding: '4px 8px',
-                                        borderRadius: '4px',
-                                        fontSize: '12px',
-                                        fontWeight: 'bold',
-                                        backgroundColor: 
-                                            user.role === 'ROLE_ADMIN' ? '#dc3545' :
-                                            user.role === 'ROLE_AUTHOR' ? '#28a745' : '#007bff',
-                                        color: 'white'
-                                    }}>
+                                </TableCell>
+                                <TableCell className="border border-gray-300 p-3">
+                                    <span className={`px-2 py-1 text-xs font-bold rounded-md`}>
                                         {user.role?.replace('ROLE_', '') || 'USER'}
                                     </span>
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
-                                    <select
+                                </TableCell>
+                                <TableCell className="border border-gray-300 p-3 text-center">
+                                    <Select
                                         value={user.role || "ROLE_USER"}
-                                        onChange={e => handleRoleChange(user.id, e.target.value)}
+                                        onValueChange={e => handleRoleChange(user.id, e || 'ROLE_USER')}
                                         disabled={user.role === "ROLE_ADMIN"}
-                                        style={{
-                                            padding: '4px 8px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '4px',
-                                            fontSize: '12px',
-                                            cursor: user.role === "ROLE_ADMIN" ? 'not-allowed' : 'pointer',
-                                            backgroundColor: user.role === "ROLE_ADMIN" ? '#f5f5f5' : 'white'
-                                        }}
                                     >
-                                        {ROLES.map(role => (
-                                            <option key={role} value={role}>
-                                                {role.replace('ROLE_', '')}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
+                                        <SelectTrigger className="w-[100px]">
+                                            <SelectValue placeholder="Select a role" />
+                                        </SelectTrigger>
+                                            <SelectContent>
+                                            {ROLES.map(role => (
+                                                <SelectItem key={role} value={role}>
+                                                    {role.replace('ROLE_', '')}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                        </Select>
+                                </TableCell>
+                                <TableCell className="border border-gray-300 p-3 text-center">
                                     <ActionButtonGroup
                                         onEdit={() => handleEdit(user.id)}
                                         onDelete={() => handleDelete(user.id)}
                                         onView={() => handleView(user.id)}
                                         showDelete={user.role !== 'ROLE_ADMIN'}
                                     />
-                                </td>
-                            </tr>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </tbody>
-                </table>
+                    </TableBody>
+                </Table>
             )}
             
-            <Pagination
+            <CustomPagination
                 currentPage={currentPage}
                 totalItems={filteredUsers.length}
                 itemsPerPage={itemsPerPage}

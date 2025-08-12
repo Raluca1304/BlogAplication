@@ -1,6 +1,154 @@
 import React, { useState, useEffect } from 'react';
 import { Comment } from '../../../types';
-import { ActionButtonGroup, Pagination, usePagination } from '../..';
+import { ActionButtonGroup } from '../Actions';
+import { formatDateTime } from '../utils/formatDataTime';
+import { Button } from '@/components/ui/button';
+import { 
+    Pagination, 
+    PaginationContent, 
+    PaginationItem, 
+    PaginationLink, 
+    PaginationNext, 
+    PaginationPrevious 
+} from '@/components/ui/pagination';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+
+function usePagination(itemsPerPage: number = 5) {
+    const [currentPage, setCurrentPage] = React.useState(1);
+
+    const getPaginatedData = (data: any[]) => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return data.slice(startIndex, endIndex);
+    };
+
+    const resetPage = () => setCurrentPage(1);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+
+    const adjustPageForDataLength = (dataLength: number) => {
+        const totalPages = Math.ceil(dataLength / itemsPerPage);
+        if (currentPage > totalPages && totalPages > 0) {
+            setCurrentPage(totalPages);
+        }
+    };
+
+    return {
+        currentPage,
+        itemsPerPage,
+        getPaginatedData,
+        handlePageChange,
+        resetPage,
+        adjustPageForDataLength
+    };
+}
+
+
+function CustomPagination({ 
+    currentPage, 
+    totalItems, 
+    itemsPerPage, 
+    onPageChange, 
+    itemName 
+}: {
+    currentPage: number;
+    totalItems: number;
+    itemsPerPage: number;
+    onPageChange: (page: number) => void;
+    itemName: string;
+}) {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+
+    // Don't render pagination if there's only one page or no items
+    if (totalPages <= 1) {
+        return null;
+    }
+
+    // Generate page numbers to show
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisible = 5;
+        
+        if (totalPages <= maxVisible) {
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            if (currentPage <= 3) {
+                for (let i = 1; i <= 4; i++) {
+                    pages.push(i);
+                }
+                pages.push('ellipsis');
+                pages.push(totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pages.push(1);
+                pages.push('ellipsis');
+                for (let i = totalPages - 3; i <= totalPages; i++) {
+                    pages.push(i);
+                }
+            } else {
+                pages.push(1);
+                pages.push('ellipsis');
+                for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                    pages.push(i);
+                }
+                pages.push('ellipsis');
+                pages.push(totalPages);
+            }
+        }
+        
+        return pages;
+    };
+
+    return (
+        <div className="flex flex-col items-center gap-4 mt-4 p-4">
+            <div className="text-sm text-gray-600">
+                Showing {startIndex + 1}-{endIndex} of {totalItems} {itemName}
+            </div>
+            
+            <Pagination>
+                <PaginationContent>
+                    <PaginationItem>
+                        <PaginationPrevious 
+                            onClick={() => onPageChange(currentPage - 1)}
+                            className={`${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        />
+                    </PaginationItem>
+                    
+                    {getPageNumbers().map((page, index) => (
+                        <PaginationItem key={index}>
+                            {page === 'ellipsis' ? (
+                                    <span className="px-2">...</span>
+                            ) : (
+                                <PaginationLink
+                                    onClick={() => onPageChange(page as number)}
+                                    isActive={currentPage === page}
+                                    className="cursor-pointer min-w-10 text-center"
+                                >
+                                    {page}
+                                </PaginationLink>
+                            )}
+                        </PaginationItem>
+                    ))}
+                    
+                    <PaginationItem>
+                        <PaginationNext 
+                            onClick={() => onPageChange(currentPage + 1)}
+                                className={`${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        />
+                    </PaginationItem>
+                </PaginationContent>
+            </Pagination>
+        </div>
+    );
+}
 
 export function Comments() {
     const [comments, setComments] = useState<Comment[]>([]);
@@ -15,20 +163,6 @@ export function Comments() {
         adjustPageForDataLength 
     } = usePagination(5);
 
-    const formatDateTime = (dateString: string) => {
-        if (!dateString) return 'N/A';
-        
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'Invalid';
-        
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear().toString().slice(-2);
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        
-        return `${day}/${month}/${year} ${hours}:${minutes}`;
-    };
 
     useEffect(() => {
         setLoading(true);
@@ -67,7 +201,7 @@ export function Comments() {
     }
 
     if (error) {
-        return <div style={{ color: 'red' }}>Error: {error}</div>;
+        return <div className="text-red-500">Error: {error}</div>;
     }
 
     const handleDelete = async (commentId: string) => {
@@ -96,20 +230,20 @@ export function Comments() {
         window.location.href = `/admin/comments/${commentId}/edit`;
     };
 
-    // Extrage titlurile unice ale articolelor din comentarii
+    // Extract unique article titles from comments
     const uniqueArticleTitles = Array.from(
         new Set(comments.map(comment => comment.article.title))
     ).sort();
 
-    // Filtrare comentarii după titlul articolului selectat
+    // Filter comments by the selected article title
     const filteredComments = comments.filter(comment => {
         if (!articleFilter.trim()) return true;
         return comment.article.title === articleFilter;
     });
 
-    const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setArticleFilter(event.target.value);
-        // Reset la prima pagină când se schimbă filtrul
+    const handleFilterChange = (value: string | null) => {
+        setArticleFilter(value || '');
+        // Reset to the first page when the filter changes
         handlePageChange(1);
     };
 
@@ -118,66 +252,48 @@ export function Comments() {
         handlePageChange(1);
     };
 
-    // Aplică paginarea pe comentariile filtrate
+    // Apply pagination to the filtered comments
     const currentComments = getPaginatedData(filteredComments);
 
     return (
         <div>
             <h2>Comments</h2>
             
-            <div style={{ 
-                marginBottom: '20px', 
-                padding: '15px', 
-                backgroundColor: '#f8f9fa', 
-                borderRadius: '5px',
-                border: '1px solid #dee2e6'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <label htmlFor="articleFilter" style={{ fontWeight: 'bold', minWidth: '120px' }}>
-                        Filter by Article:
-                    </label>
-                    <select
-                        id="articleFilter"
+            <div className="mb-4 p-4 bg-gray-100 rounded-md border border-gray-300">
+                <div className="flex items-center gap-2">
+                    <p className="font-bold">
+                        Filter by Article
+                    </p>
+                    <Select
                         value={articleFilter}
-                        onChange={handleFilterChange}
-                        style={{
-                            flex: 1,
-                            padding: '8px 12px',
-                            border: '1px solid #ddd',
-                            borderRadius: '4px',
-                            fontSize: '14px',
-                            backgroundColor: 'white',
-                            cursor: 'pointer'
-                        }}
+                        onValueChange={(value) => handleFilterChange(value || null)}
                     >
-                        <option value="">All Articles</option>
-                        {uniqueArticleTitles.map((title, index) => (
-                            <option key={index} value={title}>
-                                {title}
-                            </option>
-                        ))}
-                    </select>
+                        <SelectTrigger className="w-[280px]">
+                            <SelectValue placeholder="Select an article" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectLabel>Articles</SelectLabel>
+                                {uniqueArticleTitles.map((title, index) => (
+                                    <SelectItem key={index} value={title}>
+                                        {title}
+                                    </SelectItem>
+                                ))}
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
                     {articleFilter && (
-                        <button
-                            onClick={handleClearFilter}
-                            style={{
-                                padding: '8px 12px',
-                                backgroundColor: '#6c757d',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontSize: '14px'
-                            }}
+                        <Button
+                            onClick={handleClearFilter} 
                         >
                             Clear
-                        </button>
+                        </Button>
                     )}
                 </div>
                 
-                {/* Informații despre filtrare */}
+                {/* Information about filtering */}
                 {articleFilter && (
-                    <div style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
+                    <div className="mt-2 text-sm text-gray-600">
                         Showing {filteredComments.length} of {comments.length} comments 
                         for article: "<strong>{articleFilter}</strong>"
                     </div>
@@ -185,56 +301,56 @@ export function Comments() {
             </div>
 
             {filteredComments.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+                <div className="text-center p-4 text-gray-600">
                     {articleFilter ? 
                         `No comments found for article "${articleFilter}"` : 
                         'No comments found.'
                     }
                 </div>
             ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-                    <thead>
-                        <tr style={{ backgroundColor: '#f5f5f5' }}>
-                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>ID</th>
-                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Author</th>
-                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Article</th>
-                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Text</th>
-                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Created</th>
-                            <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <Table className="w-full border-collapse mt-4">
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="border border-gray-300 p-3 text-center">ID</TableHead>
+                            <TableHead className="border border-gray-300 p-3 text-center">Author</TableHead>
+                            <TableHead className="border border-gray-300 p-3 text-center">Article</TableHead>
+                            <TableHead className="border border-gray-300 p-3 text-center">Text</TableHead>
+                            <TableHead className="border border-gray-300 p-3 text-center">Created</TableHead>
+                            <TableHead className="border border-gray-300 p-3 text-center">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {currentComments.map((comment) => (
-                            <tr key={comment.id}>
-                                <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                            <TableRow key={comment.id}>
+                                <TableCell className="border border-gray-300 p-3">
                                     {comment.id}
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                                </TableCell>
+                                <TableCell className="border border-gray-300 p-3">
                                     {comment.authorName}
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                                </TableCell>
+                                        <TableCell className="border border-gray-300 p-3">
                                     {comment.article.title}
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '12px', maxWidth: '300px' }}>
+                                </TableCell>
+                                <TableCell className="border border-gray-300 p-3 max-w-96">
                                     {comment.text.substring(0, 100)}{comment.text.length > 100 ? '...' : ''}
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '8px', fontSize: '14px' }}>
+                                </TableCell>
+                                <TableCell className="border border-gray-300 p-3">
                                     {formatDateTime(comment.createdDate)}
-                                </td>
-                                <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
+                                </TableCell>
+                                <TableCell className="border border-gray-300 p-3 text-center">
                                     <ActionButtonGroup
                                         onEdit={() => handleEdit(comment.id)}
                                         onDelete={() => handleDelete(comment.id)}
                                         onView={() => handleView(comment.id)}
                                     />
-                                </td>
-                            </tr>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </tbody>
-                </table>
+                    </TableBody>
+                </Table>
             )}
             
-            <Pagination
+            <CustomPagination
                 currentPage={currentPage}
                 totalItems={filteredComments.length}
                 itemsPerPage={itemsPerPage}

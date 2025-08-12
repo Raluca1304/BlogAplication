@@ -1,7 +1,153 @@
 import React, { useState, useEffect, JSX } from 'react';
 import { NavLink } from "react-router";
 import { Post } from '../../../types';
-import { ActionButtonGroup, Pagination, usePagination } from '../..';
+import { ActionButtonGroup } from '../Actions';
+import { Button } from '@/components/ui/button';
+import { 
+    Pagination, 
+    PaginationContent, 
+    PaginationItem, 
+    PaginationLink, 
+    PaginationNext, 
+    PaginationPrevious 
+} from '@/components/ui/pagination';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+// Custom hook pentru logica de paginare
+function usePagination(itemsPerPage: number = 5) {
+    const [currentPage, setCurrentPage] = React.useState(1);
+
+    const getPaginatedData = (data: any[]) => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return data.slice(startIndex, endIndex);
+    };
+
+    const resetPage = () => setCurrentPage(1);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    // Reset page when data changes dramatically (like after delete)
+    const adjustPageForDataLength = (dataLength: number) => {
+        const totalPages = Math.ceil(dataLength / itemsPerPage);
+        if (currentPage > totalPages && totalPages > 0) {
+            setCurrentPage(totalPages);
+        }
+    };
+
+    return {
+        currentPage,
+        itemsPerPage,
+        getPaginatedData,
+        handlePageChange,
+        resetPage,
+        adjustPageForDataLength
+    };
+}
+
+// Componenta de paginare custom care folosește UI components
+function CustomPagination({ 
+    currentPage, 
+    totalItems, 
+    itemsPerPage, 
+    onPageChange, 
+    itemName 
+}: {
+    currentPage: number;
+    totalItems: number;
+    itemsPerPage: number;
+    onPageChange: (page: number) => void;
+    itemName: string;
+}) {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+
+    // Don't render pagination if there's only one page or no items
+    if (totalPages <= 1) {
+        return null;
+    }
+
+    // Generate page numbers to show
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisible = 5;
+        
+        if (totalPages <= maxVisible) {
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            if (currentPage <= 3) {
+                for (let i = 1; i <= 4; i++) {
+                    pages.push(i);
+                }
+                pages.push('ellipsis');
+                pages.push(totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pages.push(1);
+                pages.push('ellipsis');
+                for (let i = totalPages - 3; i <= totalPages; i++) {
+                    pages.push(i);
+                }
+            } else {
+                pages.push(1);
+                pages.push('ellipsis');
+                for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                    pages.push(i);
+                }
+                pages.push('ellipsis');
+                pages.push(totalPages);
+            }
+        }
+        
+        return pages;
+    };
+
+    return (
+        <div className="flex flex-col items-center gap-4 mt-4 p-4">
+            <div className="text-sm text-gray-600">
+                Showing {startIndex + 1}-{endIndex} of {totalItems} {itemName}
+            </div>
+            
+            <Pagination>
+                <PaginationContent>
+                    <PaginationItem>
+                        <PaginationPrevious 
+                            onClick={() => onPageChange(currentPage - 1)}
+                            className={`${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        />
+                    </PaginationItem>
+                    
+                    {getPageNumbers().map((page, index) => (
+                        <PaginationItem key={index}>
+                            {page === 'ellipsis' ? (
+                                <span className="px-2">...</span>
+                            ) : (
+                                <PaginationLink
+                                    onClick={() => onPageChange(page as number)}
+                                    isActive={currentPage === page}
+                                    className="cursor-pointer min-w-10 text-center"
+                                >
+                                    {page}
+                                </PaginationLink>
+                            )}
+                        </PaginationItem>
+                    ))}
+                    
+                    <PaginationItem>
+                        <PaginationNext 
+                            onClick={() => onPageChange(currentPage + 1)}
+                            className={`${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        />
+                    </PaginationItem>
+                </PaginationContent>
+            </Pagination>
+        </div>
+    );
+}
 
 export function Articles(): JSX.Element {
     const [articles, setArticles] = useState<Post[]>([]);
@@ -76,57 +222,58 @@ export function Articles(): JSX.Element {
     const currentArticles = getPaginatedData(articles);
 
     return (
+        
         <div>
-            <h2>Manage Articles
-            <button onClick={() => window.location.href = '/create'} style={{ marginTop: '20px' , marginLeft: '1200px'}}>Create Article</button>
-            </h2>
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-                <thead>
-                    <tr style={{ backgroundColor: '#f5f5f5' }}>
-                        <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>ID</th>
-                        <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Title</th>
-                        <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Author</th>
-                        <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Content Preview</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center'}}>Created</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center'}}>Updated</th>
-                        <th style={{ border: '1px solid #ddd', padding: '20px', textAlign: 'center' }}>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <h2>Manage Articles</h2>
+            < Button onClick={() => window.location.href = '/create'} variant="navy">Create Article</Button>
+            <Table className="table-auto mt-4 border-collapse border-spacing-0 border border-gray-300 rounded-md shadow-md">
+                <TableHeader className="bg-gray-100">   
+                    <TableRow>
+                        <TableHead className="border border-gray-300 p-4 text-center">ID</TableHead>
+                        <TableHead className="border border-gray-300 p-4 text-center">Title</TableHead>
+                        <TableHead className="border border-gray-300 p-4 text-center">Author</TableHead>
+                        <TableHead className="border border-gray-300 p-4 text-center">Content Preview</TableHead>
+                        <TableHead className="border border-gray-300 p-4 text-center">Created</TableHead>
+                        <TableHead className="border border-gray-300 p-4 text-center">Updated</TableHead>
+                        <TableHead className="border border-gray-300 p-4 text-center">Actions</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
                     {currentArticles.map((article) => (
-                        <tr key={article.id}>
-                            <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                        <TableRow key={article.id}>
+                            <TableCell className="border border-gray-300 p-4">
                                     {article.id}
-                            </td>
-                            <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                            </TableCell>
+                            <TableCell className="border border-gray-300 p-4">
                                 {article.title}
-                            </td>
-                            <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                            </TableCell>
+                            <TableCell className="border border-gray-300 p-4">
                                 {typeof article.author === 'string' ? article.author : article.author?.username ?? 'Unknown'}
-                            </td>
-                            <td style={{ border: '1px solid #ddd', padding: '12px', maxWidth: '300px' }}>
-                                {article.content.substring(0, 100)}...
-                            </td>
-                            <td style={{ border: '1px solid #ddd', padding: '8px', fontSize: '14px' }}>
+                            </TableCell>
+                            <TableCell className="border border-gray-300 p-4 max-w-[200px]">
+                                {article.content.substring(0, 25)}...
+                            </TableCell>
+                            <TableCell className="border border-gray-300 p-4">
                                 {formatDateTime(article.createdDate)}
-                            </td>
-                            <td style={{ border: '1px solid #ddd', padding: '8px', fontSize: '14px' }}>
+                            </TableCell>
+                            <TableCell className="border border-gray-300 p-4">
                                 {formatDateTime(article.updatedDate || '')}
-                            </td>
-                            <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
+                            </TableCell>
+                            <TableCell className="border border-gray-300 p-4 text-center">
                                 <ActionButtonGroup
+                                
                                     onEdit={() => handleEdit(article.id)}
                                     onDelete={() => handleDelete(article.id)}
                                     onView={() => handleView(article.id)}
                                 />
-                            </td>
-                        </tr>
+                            </TableCell>
+                        </TableRow>
                     ))}
-                </tbody>
-            </table>
+                </TableBody>
+            </Table>
             
 
-            <Pagination
+            <CustomPagination
                 currentPage={currentPage}
                 totalItems={articles.length}
                 itemsPerPage={itemsPerPage}

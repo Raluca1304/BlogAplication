@@ -1,23 +1,22 @@
 import React, { JSX } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
-import { Layout } from './Layout';
-import { Articles } from './components/admin/Articles/Articles';
-import { Article } from './components/admin/Articles/Article/Article';
-import { Comments } from './components/admin/Comments/Comments';
-import { Comment } from './components/admin/Comments/Comment/Comment';
-import { EditCommentPage } from './components/admin/Comments/Comment/EditComment';
-import { Login } from './Login';  
-import { UsersPosts } from './UsersPosts';
-import { CreateArticle } from './components/admin/Articles/Article/CreateArticle';
-import { EditArticle } from './components/admin/Articles/Article/EditArticle';
-import { Home } from './Home';
-import { Users } from './components/admin/Users/Users';
-import { User } from './components/admin/Users/User/User';
-import { EditUser } from './components/admin/Users/User/EditUser';
-import { AdminDashboard } from './components/admin/AdminDashboard';
-import { Profile } from './Profile';
-import { Posts } from './Posts';
-import { AllPosts, PostDetail, PublicHome } from './components/public';
+import { Layout } from './src/components/public/Layout';
+import { Articles } from './src/components/admin/Articles/Articles';
+import { Article } from './src/components/admin/Articles/Article/Article';
+import { Comments } from './src/components/admin/Comments/Comments';
+import { Comment } from './src/components/admin/Comments/Comment/Comment';
+import { EditCommentPage } from './src/components/admin/Comments/Comment/EditComment';
+import { Login } from './src/components/public/Login';
+import { UsersPosts } from './src/components/public/UsersPosts';
+import { CreateArticle } from './src/components/admin/Articles/Article/CreateArticle';
+import { EditArticle } from './src/components/admin/Articles/Article/EditArticle';
+import { Home } from './src/components/public/Home';
+import { Users } from './src/components/admin/Users/Users';
+import { User } from './src/components/admin/Users/User/User';
+import { EditUser } from './src/components/admin/Users/User/EditUser';
+import { AdminDashboard } from './src/components/admin/Actions/AdminDashboard';
+import { Posts } from './src/Posts';
+import { AllPosts, PostDetail, PublicHome } from './src/components/public';
 
 export function BlogApp(): JSX.Element {
   return (
@@ -27,7 +26,6 @@ export function BlogApp(): JSX.Element {
             <Route index element={<PublicHome />} />
             <Route path="home" element={<Home />} />
             <Route path="login" element={<Login />} />
-            <Route path="profile" element={<Profile />} />
             <Route path="admin/dashboard" element={<AdminDashboard />} />
             <Route path="admin/articles" element={<Articles />} />
             <Route path="admin/articles/:id" element={<Article />} />

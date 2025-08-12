@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { roleUtils } from '../../types';
-
-interface DashboardStats {
-    articlesCount: number;
-    commentsCount: number;
-    usersCount: number;
-}
+import { roleUtils, DashboardStats } from '../../../types';
 
 export function AdminDashboard() {
     const [stats, setStats] = useState<DashboardStats>({
@@ -82,37 +76,26 @@ export function AdminDashboard() {
     ];
 
     if (loading) {
-        return <div style={{ padding: '20px' }}>Loading...</div>;
+        return <div >Loading...</div>;
     }
 
     return (
-        <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
-            <div style={{ marginBottom: '40px', textAlign: 'center' }}>
-                <h1>Admin Dashboard</h1>
-                <p>Welcome to the administration panel. Manage your blog content and users.</p>
+        <div >
+            <div className="text-center">
+                <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+                <p className="text-gray-600">Welcome to the administration panel!  Manage your blog content and users.</p>
             </div>
 
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '30px',
-                marginBottom: '40px'
-            }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 mb-10 mt-10">
+                
                 {dashboardCards.filter(card => card.visible).map((card, index) => (
                     <div
                         key={index}
-                        style={{
-                            backgroundColor: '#f8f9fa',
-                            border: '1px solid #dee2e6',
-                            borderRadius: '8px',
-                            padding: '20px',
-                            cursor: 'pointer',
-                            textAlign: 'center'
-                        }}
+                        className="bg-gray-100 border-gray-300 rounded-md p-4 cursor-pointer text-center"
                         onClick={() => window.location.href = card.link}
                     >
-                        <h3>{card.title}</h3>
-                        <p style={{ color: '#666', fontSize: '14px' }}>{card.description}</p>
+                        <h3 className="text-lg">{card.title}</h3>
+                        <p className="text-gray-600">{card.description}</p>
                         
                     </div>
                 ))}

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, JSX } from 'react';
 import { NavLink, useParams } from "react-router";
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 
 interface Article {
   id: string;
@@ -138,7 +140,7 @@ export function PostDetail(): JSX.Element {
 
     if (loadingArticle) {
         return (
-            <div style={{ padding: '20px', textAlign: 'center' }}>
+            <div className="p-4 text-center">
                 <h2>Loading article...</h2>
             </div>
         );
@@ -146,101 +148,59 @@ export function PostDetail(): JSX.Element {
 
     if (error && !article) {
         return (
-            <div style={{ padding: '20px' }}>
+            <div className="p-4">
                 <h2>Error</h2>
-                <p style={{ color: 'red' }}>{error}</p>
-                <NavLink 
-                    to="/public/posts"
-                    style={{
-                        display: 'inline-block',
-                        padding: '10px 16px',
-                        backgroundColor: '#007bff',
-                        color: 'white',
-                        textDecoration: 'none',
-                        borderRadius: '4px',
-                        marginTop: '10px'
-                    }}
-                >
-                    ← Back to All Posts
-                </NavLink>
+                <p className="text-red-500">{error}</p>
+                <Button variant="burgundy" className="mr-2">
+                    <NavLink 
+                        to="/public/posts">
+                        ← Back to All Posts
+                    </NavLink>
+                </Button>
             </div>
         );
     }
 
     if (!article) {
         return (
-            <div style={{ padding: '20px' }}>
+            <div className="p-4">
                 <h2>Article not found</h2>
-                <NavLink 
-                    to="/public/posts"
-                    style={{
-                        display: 'inline-block',
-                        padding: '10px 16px',
-                        backgroundColor: '#007bff',
-                        color: 'white',
-                        textDecoration: 'none',
-                        borderRadius: '4px'
-                    }}
-                >
-                    ← Back to All Posts
-                </NavLink>
+                <Button variant="burgundy" className="mr-2">
+                    <NavLink 
+                        to="/public/posts">
+                        ← Back to All Posts
+                    </NavLink>
+                </Button>
             </div>
         );
     }
     
     return (
-        <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+        <div className="p-4 max-w-2xl mx-auto mt-10">
             {/* Navigation */}
-            <div style={{ marginBottom: '20px' }}>
-                <NavLink 
-                    to="/public/posts"
-                    style={{
-                        color: '#007bff',
-                        textDecoration: 'none',
-                        fontSize: '14px'
-                    }}
-                >
-                    ← Back to All Posts
-                </NavLink>
+            <div className="mb-4">
+                <Button variant="burgundy" className="mr-2">
+                    <NavLink 
+                        to="/public/posts">
+                        ← Back to All Posts
+                    </NavLink>
+                </Button>
             </div>
 
             {/* Article Content */}
-            <article style={{ 
-                backgroundColor: '#fff',
-                padding: '30px',
-                borderRadius: '8px',
-                border: '1px solid #dee2e6',
-                marginBottom: '30px'
-            }}>
-                <h1 style={{ 
-                    margin: '0 0 20px 0',
-                    color: '#333',
-                    lineHeight: '1.3'
-                }}>
+            <article
+                className="bg-white p-6 rounded-md border border-gray-300 mb-6">
+                <h1 className="mb-4 text-2xl font-bold">
                     {article.title}
                 </h1>
 
                 <div
-                style={{ 
-                    marginBottom: '30px',
-                    paddingBottom: '20px',
-                    borderBottom: '1px solid #eee',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '15px',
-                    fontSize: '14px',
-                    color: '#666'
-                }}
+                className="mb-6 pb-4 border-b border-gray-200 flex items-center gap-4 text-sm text-gray-600"
                 >
                     <span>By</span>
                     <NavLink 
                         to={`/public/users/${article.authorId}`}
-                        style={{
-                            color: '#007bff',
-                            textDecoration: 'none',
-                            fontWeight: '600'
-                        }}
-                    >
+                        className="text-beige font-bold">
                         {article.author}
                     </NavLink>
                     <span>•</span>
@@ -253,134 +213,72 @@ export function PostDetail(): JSX.Element {
                     )}
                 </div>
 
-                <div style={{ 
-                    lineHeight: '1.7',
-                    fontSize: '16px',
-                    color: '#333'
-                }}>
-                    <p style={{ whiteSpace: 'pre-wrap' }}>{article.content}</p>
+                <div className="text-gray-700 leading-relaxed text-base">
+                    <p className="whitespace-pre-wrap">{article.content}</p>
                 </div>
             </article>
 
             {isLoggedIn ? (
-                <div style={{
-                    backgroundColor: '#f8f9fa',
-                    padding: '30px',
-                    borderRadius: '8px',
-                    border: '1px solid #dee2e6'
-                }}>
-                    <h3 style={{ 
-                        margin: '0 0 25px 0',
-                        color: '#333'
-                    }}>
+                <div className="bg-gray-50 p-6 rounded-md border border-gray-200">
+                    <h3 className="mb-5 text-lg font-semibold">
                         Comments ({comments.length})
                     </h3>
 
                     {/* Add Comment Form */}
-                    <form onSubmit={handleAddComment} style={{ marginBottom: '30px' }}>
+                    <form onSubmit={handleAddComment} className="mb-6">
                         {error && typeof error === 'string' && (
-                            <div style={{
-                                padding: '10px',
-                                backgroundColor: '#f8d7da',
-                                color: '#721c24',
-                                border: '1px solid #f5c6cb',
-                                borderRadius: '4px',
-                                marginBottom: '15px'
-                            }}>
+                                <div className="p-2 bg-red-50 text-red-700 border border-red-200 rounded-md mb-3">
                                 {error}
                             </div>
                         )}
                         {success && (
-                            <div style={{
-                                padding: '10px',
-                                backgroundColor: '#d4edda',
-                                color: '#155724',
-                                border: '1px solid #c3e6cb',
-                                borderRadius: '4px',
-                                marginBottom: '15px'
-                            }}>
+                            <div className="p-2 bg-green-50 text-green-700 border border-green-200 rounded-md mb-3">
                                 {success}
                             </div>
                         )}
-                        <textarea
+                        <Textarea
                             value={newComment}
                             onChange={e => setNewComment(e.target.value)}
-                            placeholder="Write your comment here..."
-                            style={{
-                                width: '100%',
-                                minHeight: '100px',
-                                padding: '12px',
-                                border: '1px solid #ddd',
-                                borderRadius: '4px',
-                                fontSize: '14px',
-                                resize: 'vertical',
-                                marginBottom: '10px'
-                            }}
+                            placeholder="Write your comment here..."    
+                            className="w-full min-h-[100px] p-3 border border-gray-300 rounded-md mb-3"
                             disabled={submittingComment}
                         />
-                        <button 
+                        <Button 
                             type="submit"
+                            variant="greenDark"
+                            className="mr-2"
                             disabled={submittingComment || !newComment.trim()}
-                            style={{
-                                padding: '10px 20px',
-                                backgroundColor: submittingComment || !newComment.trim() ? '#ccc' : '#007bff',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: submittingComment || !newComment.trim() ? 'not-allowed' : 'pointer',
-                                fontSize: '14px'
-                            }}
                         >
                             {submittingComment ? 'Adding Comment...' : 'Add Comment'}
-                        </button>
+                        </Button>
                     </form>
 
-                    {/* Comments List */}
                     {loadingComments ? (
                         <p>Loading comments...</p>
                     ) : comments.length === 0 ? (
-                        <p style={{ 
-                            textAlign: 'center',
-                            color: '#666',
-                            fontStyle: 'italic',
-                            padding: '20px'
-                        }}>
+                        <p className="text-center text-gray-600 italic py-4">
                             No comments yet. Be the first to comment!
                         </p>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <div className="flex flex-col gap-4">
                             {comments.map((comment) => (
                                 <div 
                                     key={comment.id}
-                                    style={{
-                                        backgroundColor: 'white',
-                                        padding: '15px',
-                                        borderRadius: '6px',
-                                        border: '1px solid #dee2e6'
-                                    }}
+                                    className="bg-white p-4 rounded-md border border-gray-200"
                                 >
-                                    <div style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'flex-start',
-                                        marginBottom: '10px'
-                                    }}>
-                                        <div style={{ fontSize: '12px', color: '#666' }}>
-                                            <strong style={{ color: '#333' }}>
+                                    <div className="flex justify-between items-start mb-2">
+                                                <div className="text-sm text-gray-600">
+                                            <strong className="text-gray-800">
                                                 {comment.authorName || 'Anonymous'}
                                             </strong>
                                             {comment.createdDate && (
-                                                <span style={{ marginLeft: '10px' }}>
+                                                <span className="ml-2">
                                                     {new Date(comment.createdDate).toLocaleString()}
                                                 </span>
                                             )}
                                         </div>
                                     </div>
-                                    <p style={{ 
-                                        margin: 0,
-                                        lineHeight: '1.5',
-                                        color: '#333'
-                                    }}>
+                                    <p className="mb-0 leading-relaxed">
                                         {comment.text}
                                     </p>
                                 </div>
@@ -390,51 +288,19 @@ export function PostDetail(): JSX.Element {
                 </div>
             ) : (
                 /* Message for non-logged users */
-                <div style={{
-                    backgroundColor: '#f8f9fa',
-                    padding: '30px',
-                    borderRadius: '8px',
-                    border: '1px solid #dee2e6',
-                    textAlign: 'center'
-                }}>
-                    <h3 style={{ 
-                        margin: '0 0 20px 0',
-                        color: '#333'
-                    }}>
+                <div className="bg-gray-50 p-6 rounded-md border border-gray-200 text-center">
+                    <h3 className="mb-4 text-lg font-semibold">
                         Join the Discussion!
                     </h3>
-                    <p style={{ 
-                        margin: '0 0 25px 0',
-                        color: '#666',
-                        fontSize: '16px',
-                        lineHeight: '1.6'
-                    }}>
+                    <p className="mb-5 text-gray-600">
                         Log in to see comments and join the conversation with other readers.
                     </p>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
-                        <NavLink 
-                            to="/login"
-                            style={{
-                                padding: '12px 24px',
-                                backgroundColor: '#007bff',
-                                color: 'white',
-                                textDecoration: 'none',
-                                borderRadius: '6px',
-                                fontSize: '15px',
-                                fontWeight: '500',
-                                transition: 'all 0.3s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#0056b3';
-                                e.currentTarget.style.transform = 'translateY(-1px)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = '#007bff';
-                                e.currentTarget.style.transform = 'translateY(0)';
-                            }}
-                        >
-                            Login
-                        </NavLink>  
+                    <div className="flex justify-center gap-4 flex-wrap">
+                        <Button variant="navy">
+                            <NavLink to="/login">
+                                Login
+                            </NavLink>
+                        </Button>
                     </div>
                 </div>
             )}
