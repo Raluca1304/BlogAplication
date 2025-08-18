@@ -88,7 +88,7 @@ export function AllPosts(): JSX.Element {
     return (
         <div className="p-4 max-w-4xl mx-auto">
             <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
-                <h1 className="m-0">All Articles</h1>
+                    <h1 className="p-0 m-0 bold font-extrabold text-2xl">All Posts</h1>
                 {!searchQuery && (
                     <div className="flex items-center gap-2">
                         <p className="font-bold">

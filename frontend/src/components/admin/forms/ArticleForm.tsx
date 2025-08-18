@@ -137,7 +137,7 @@ export function ArticleForm({
                 </div>
                 
                 <div className="mb-4">
-                    <div className="w-full border rounded overflow-x-auto mdx-editor p-2 min-h-[420px]">
+                    <div className="w-full border rounded  mdx-editor p-2 min-h-[420px]">
                       <MDXEditor
                         ref={editorRef}
                         markdown={contentValue}
@@ -169,6 +169,7 @@ export function ArticleForm({
                           thematicBreakPlugin(),
                           markdownShortcutPlugin(),
                           linkPlugin(),
+
                           tablePlugin(),
                           codeBlockPlugin({
                             defaultCodeBlockLanguage: 'plaintext'

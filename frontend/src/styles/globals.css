@@ -112,6 +112,8 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-beige: #BCAC9B;
+  --color-link-blue: #1e40af;
+  --color-link-blue-hover: #1d4ed8;
   
 }
 
@@ -194,10 +196,10 @@ main {
   border-radius: 0.25rem;
 }
 
-/* Make editor container larger to prevent overflow and give space */
 .mdx-editor {
   max-width: 100%;
   box-sizing: border-box;
+  overflow: visible !important;
 }
 .mdx-editor .mdxeditor-root-content {
   padding-right: 0.25rem;
@@ -220,3 +222,4 @@ main {
   background: #f9fafb; /* neutral-50 */
   color: inherit;
 }
+

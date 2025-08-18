@@ -3,6 +3,7 @@ import { NavLink } from "react-router";
 import { Post } from '../../../types';
 import { ActionButtonGroup } from '../Actions';
 import { Button } from '@/components/ui/button';
+import ReactMarkdown from 'react-markdown';
 import { 
     Pagination, 
     PaginationContent, 
