@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Post } from '../../../types';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -7,8 +7,31 @@ import { FormDataArticle } from '../../../types';
 import * as yup from 'yup';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { MDXEditor } from '@mdxeditor/editor';
+import '@mdxeditor/editor/style.css';
 
+import {
+  toolbarPlugin,
+  headingsPlugin,
+  listsPlugin,
+  quotePlugin,
+  thematicBreakPlugin,
+  markdownShortcutPlugin,
+  linkPlugin,
+  tablePlugin,
+  codeBlockPlugin,
+  codeMirrorPlugin,
+  UndoRedo,
+  BoldItalicUnderlineToggles,
+  CodeToggle,
+  BlockTypeSelect,
+  ListsToggle,
+  CreateLink,
+  InsertTable,
+  InsertCodeBlock,
+  Separator,
+  type MDXEditorMethods
+} from '@mdxeditor/editor';
 
 // Validation schema
 const schema = yup
@@ -28,6 +51,8 @@ export function ArticleForm({
     const [loading, setLoading] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [contentValue, setContentValue] = useState<string>(initialData?.content || '');
+    const editorRef = useRef<MDXEditorMethods | null>(null);
 
     const { register, handleSubmit, formState: { errors }, setValue } = useForm<FormDataArticle >({
         resolver: yupResolver(schema),
@@ -44,7 +69,11 @@ export function ArticleForm({
                 .then(res => res.json())
                 .then((data: Post) => {
                     setValue('title', data.title || '');
-                    setValue('content', data.content || '');
+                    const newContent = data.content || '';
+                    setValue('content', newContent);
+                    setContentValue(newContent);
+                    // Update editor content if already mounted
+                    editorRef.current?.setMarkdown(newContent);
                 })
                 .catch(() => setError('Could not load article.'))
                 .finally(() => setLoading(false));
@@ -93,7 +122,7 @@ export function ArticleForm({
     }
 
     return (
-        <div className="p-4 max-w-2xl mx-auto">
+        <div className="p-4 max-w-5xl w-full mx-auto">
             <h2>{mode === 'edit' ? 'Edit Article' : 'Create Article'}</h2>
             
             <form onSubmit={handleSubmit(onSubmit)} className="w-full">
@@ -108,12 +137,55 @@ export function ArticleForm({
                 </div>
                 
                 <div className="mb-4">
-                    <Textarea   
-                        placeholder="Article content" 
-                        rows={12}
-                        className="w-full"
-                        {...register("content")} 
-                    />
+                    <div className="w-full border rounded overflow-x-auto mdx-editor p-2 min-h-[420px]">
+                      <MDXEditor
+                        ref={editorRef}
+                        markdown={contentValue}
+                        onChange={(md) => {
+                          setContentValue(md);
+                          setValue('content', md, { shouldValidate: true });
+                        }}
+                        plugins={[
+                          toolbarPlugin({
+                            toolbarContents: () => (
+                              <>
+                                <UndoRedo />
+                                <Separator />
+                                <BoldItalicUnderlineToggles />
+                                <CodeToggle />
+                                <Separator />
+                                <BlockTypeSelect />
+                                <ListsToggle />
+                                <Separator />
+                                <CreateLink />
+                                <InsertTable />
+                                <InsertCodeBlock />
+                              </>
+                            )
+                          }),
+                          headingsPlugin(),
+                          listsPlugin(),
+                          quotePlugin(),
+                          thematicBreakPlugin(),
+                          markdownShortcutPlugin(),
+                          linkPlugin(),
+                          tablePlugin(),
+                          codeBlockPlugin({
+                            defaultCodeBlockLanguage: 'plaintext'
+                          }),
+                          codeMirrorPlugin({
+                            codeBlockLanguages: {
+                              plaintext: 'Plain text',
+                              js: 'JavaScript',
+                              ts: 'TypeScript',
+                              json: 'JSON',
+                              java: 'Java',
+                              md: 'Markdown'
+                            }
+                          })
+                        ]}
+                      />
+                    </div>
                     {errors.content && <span className="text-red-500 text-sm">{errors.content.message}</span>}
                 </div>
                 

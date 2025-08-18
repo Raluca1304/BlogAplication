@@ -1,4 +1,7 @@
 import React, { useState, useEffect, JSX } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
 import { NavLink, useParams } from "react-router";
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -71,6 +74,9 @@ export function PostDetail(): JSX.Element {
                 })
                 .then((data: Comment[] | any) => {
                     const commentsArray = Array.isArray(data) ? data : [];
+                    commentsArray.sort((a: Comment, b: Comment) =>
+                        new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
+                    );
                     console.log("Comments data:", commentsArray);
                     setComments(commentsArray);
                 })
@@ -125,7 +131,11 @@ export function PostDetail(): JSX.Element {
                 
                 if (commentsRes.ok) {
                     const data = await commentsRes.json();
-                    setComments(Array.isArray(data) ? data : []);
+                    const commentsArray: Comment[] = Array.isArray(data) ? data : [];
+                    commentsArray.sort((a: Comment, b: Comment) =>
+                        new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
+                    );
+                    setComments(commentsArray);
                 }
             } else {
                 setError("Failed to add comment. Please try again.");
@@ -213,8 +223,13 @@ export function PostDetail(): JSX.Element {
                     )}
                 </div>
 
-                <div className="text-gray-700 leading-relaxed text-base">
-                    <p className="whitespace-pre-wrap">{article.content}</p>
+                <div className="text-gray-700 leading-relaxed text-base prose max-w-none">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeHighlight]}
+                    >
+                      {article.content || ''}
+                    </ReactMarkdown>
                 </div>
             </article>
 
@@ -224,7 +239,6 @@ export function PostDetail(): JSX.Element {
                         Comments ({comments.length})
                     </h3>
 
-                    {/* Add Comment Form */}
                     <form onSubmit={handleAddComment} className="mb-6">
                         {error && typeof error === 'string' && (
                                 <div className="p-2 bg-red-50 text-red-700 border border-red-200 rounded-md mb-3">
@@ -264,8 +278,7 @@ export function PostDetail(): JSX.Element {
                             {comments.map((comment) => (
                                 <div 
                                     key={comment.id}
-                                    className="bg-white p-4 rounded-md border border-gray-200"
-                                >
+                                    className="bg-white p-4 rounded-md border border-gray-200">
                                     <div className="flex justify-between items-start mb-2">
                                                 <div className="text-sm text-gray-600">
                                             <strong className="text-gray-800">
@@ -287,7 +300,6 @@ export function PostDetail(): JSX.Element {
                     )}
                 </div>
             ) : (
-                /* Message for non-logged users */
                 <div className="bg-gray-50 p-6 rounded-md border border-gray-200 text-center">
                     <h3 className="mb-4 text-lg font-semibold">
                         Join the Discussion!

@@ -3,6 +3,8 @@ import { NavLink } from 'react-router';
 import { Article } from '../../types';
 import { Button } from '@/components/ui/button';
 import { getInitials } from '../admin/utils/formatDataTime';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 
 
@@ -10,7 +12,7 @@ export function Home(): JSX.Element {
   const [latest, setLatest] = useState<Article[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
+  const isLoggedIn = localStorage.getItem('jwt') !== null;
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -70,12 +72,27 @@ export function Home(): JSX.Element {
               {article.title}
             </h3>
             
-            <p className="mb-4 text-gray-700">{article.summary}</p>
+            <div className="mb-4 text-gray-700 prose prose-sm max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {article.summary || ''}
+              </ReactMarkdown>
+            </div>
             <Button variant="navy">
+
               <NavLink to={`/public/posts/${article.id}`}>Read Full Article →</NavLink>
             </Button>
           </div>
-        ))}
+        ))
+        }
+        <div className="flex justify-center">
+          {!isLoggedIn ? (
+            <Button variant="navy" className="w-full">
+              <NavLink to={`/public/login`}>Join to see more</NavLink>
+            </Button>
+           ) : <Button variant="burgundy" >
+           <NavLink to={`/public/posts`}>Go to all articles →</NavLink>
+         </Button>}
+        </div> 
       </div>
     </div>
   );

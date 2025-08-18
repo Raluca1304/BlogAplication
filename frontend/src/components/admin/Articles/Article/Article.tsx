@@ -1,6 +1,9 @@
 import React, { useState, useEffect, JSX } from 'react';
-import { NavLink, useParams } from "react-router";
+import { useParams } from "react-router";
 import { Post } from '../../../../types';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { formatDateTime } from '../../utils/formatDataTime';
 
 export function Article(): JSX.Element {
     const { id } = useParams<{ id: string }>();
@@ -24,12 +27,34 @@ export function Article(): JSX.Element {
     }
     
     return (
-      <div className="article">
-        <h2>{article.title}</h2>
-        <p>{article.content}</p>
-        <p>
-          <small>{new Date(article.createdDate).toLocaleString()}</small>
-        </p>
-      </div>
+      <Card className="max-w-3xl p-10 ml-100">
+        <CardHeader className="border-b">
+          <CardTitle className="text-2xl">{article.title}</CardTitle>
+          <CardDescription>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+              <span>Author:</span>
+            <span className="font-medium">
+              {typeof (article as any).author === 'string'
+                ? (article as any).author
+                : (article as any).author?.username || (article as any).authorName || 'Unknown'}
+            </span>
+              <span>•</span>
+              <span>Created: {formatDateTime(article.createdDate)}</span>
+              {article.updatedDate && (
+                <>
+                  <span>•</span>
+                  <span>Updated: {formatDateTime(article.updatedDate)}</span>
+                </>
+              )}
+            </div>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="prose max-w-none py-6">
+          <p className="whitespace-pre-wrap text-gray-800">{article.content}</p>
+        </CardContent>
+        <CardFooter className="justify-end border-t">
+          <Button variant="beige" onClick={() => window.history.back()}>Back</Button>
+        </CardFooter>
+      </Card>
     );
   } 

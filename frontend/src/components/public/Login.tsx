@@ -1,5 +1,5 @@
 import React, { JSX, useState } from 'react';
-import { useNavigate } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import { LoginFormProps, RegisterFormProps } from '../../types';
 import { authService } from './authService';
 import { useForm } from 'react-hook-form';
@@ -7,7 +7,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 const loginSchema = yup
   .object({
     username: yup.string().required('Username is required').min(3, 'Username must be at least 3 characters'),
@@ -89,8 +91,9 @@ export function LoginForm({ username, password, setUsername, setPassword, onLogi
       <Button 
         type="submit"
         variant="navy"
+        className="w-full"
       >
-        Login
+        Sign in
       </Button>
     </form>
   );
@@ -118,7 +121,7 @@ export function RegisterForm({
   };
 
   return (
-    <Card>
+    <Card className="p-7 mb-60">
       <CardHeader>
         <CardTitle className="text-center">Register</CardTitle>
       </CardHeader>
@@ -199,10 +202,19 @@ export function RegisterForm({
         )}
       </div>
         <CardFooter className="px-0 flex gap-2">
-          <Button type="submit" variant="greenDark">Register</Button>
+          <Button type="submit" variant="greenDark" className="w-full">Sign up</Button>
         </CardFooter>
         <CardFooter>
-          <h2>Already have an account? <Button variant="navy" onClick={() => setShowRegister(false)}>Login</Button></h2>
+          <h2 className="text-center">
+            Already have an account?
+            <Button
+              variant="link"
+              size="sm"
+
+              className="text-blue-500 hover:text-blue-600 text-center px-0 py-0 h-auto ml-1 mt-2"
+              onClick={() => setShowRegister(false)}
+            >Sign in</Button>
+          </h2>
         </CardFooter>
         </form>
       </CardContent>
@@ -249,13 +261,12 @@ export function RegisterForm({
   };
   
       const handleRegister = async (formData?: any): Promise<void> => {
-    // Folosește datele din form dacă sunt disponibile, altfel folosește state-urile
-    const dataToUse = formData || {
-      username: username.trim(),
-      password: password.trim(),
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      email: email.trim()
+        const dataToUse = formData || {
+        username: username.trim(),
+        password: password.trim(),
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim()
     };
 
     if (!dataToUse.username || !dataToUse.password || !dataToUse.firstName || 
@@ -299,7 +310,7 @@ export function RegisterForm({
     return (
 
       <div className="flex justify-center items-center h-screen">
-        <div className="p-4 max-w-2xl mx-auto mt-10">
+        <div className="p-7 max-w-2xl mx-auto mt-10">
           {errorMessage && (
             <div className="text-red-500 text-sm">
               {errorMessage}
@@ -328,9 +339,10 @@ export function RegisterForm({
               onRegister={handleRegister}
             />
           ) : (
-            <Card>
+            <Card className="p-7 mb-60">
               <CardHeader>
-                <CardTitle className="text-center">Login</CardTitle>
+                <CardTitle className="text-center">Welcome back !</CardTitle>
+                <CardDescription className="text-center">Sign in to your account.</CardDescription>
               </CardHeader>
               <CardContent>
                 <LoginForm
@@ -340,9 +352,23 @@ export function RegisterForm({
                   setPassword={setPassword}
                   onLogin={handleLogin}
                 />
+                {/* <Checkbox
+                  id="remember-me"
+                  label="Remember me"
+                /> */}
               </CardContent>
               <CardFooter>
-                <h2>Don't have an account? <Button variant="greenDark" onClick={() => setShowRegister(true)}>Register</Button></h2>
+                <h2 className="text-center">
+                  Don't have an account?
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="text-blue-500 hover:text-blue-600 text-center px-0 py-0 h-auto ml-1"
+                    onClick={() => setShowRegister(true)}
+                  >
+                    Register
+                  </Button>
+                </h2>
               </CardFooter>
             </Card>
           )}

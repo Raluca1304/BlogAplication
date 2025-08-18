@@ -134,3 +134,89 @@ main {
   padding: 0;
   background: transparent;
 }
+
+/* MDXEditor content normalization to avoid Tailwind resets interfering */
+.mdx-editor h1,
+.mdx-editor h2,
+.mdx-editor h3,
+.mdx-editor h4,
+.mdx-editor h5,
+.mdx-editor h6,
+.mdx-editor .mdxeditor-root-content h1,
+.mdx-editor .mdxeditor-root-content h2,
+.mdx-editor .mdxeditor-root-content h3,
+.mdx-editor .mdxeditor-root-content h4,
+.mdx-editor .mdxeditor-root-content h5,
+.mdx-editor .mdxeditor-root-content h6 {
+  margin: 0.75rem 0 0.5rem;
+  font-weight: 700;
+}
+.mdx-editor h1, .mdx-editor .mdxeditor-root-content h1 { font-size: 1.875rem; }
+.mdx-editor h2, .mdx-editor .mdxeditor-root-content h2 { font-size: 1.5rem; }
+.mdx-editor h3, .mdx-editor .mdxeditor-root-content h3 { font-size: 1.25rem; }
+
+.mdx-editor ol,
+.mdx-editor .mdxeditor-root-content ol { list-style: decimal; padding-left: 1.5rem; }
+.mdx-editor ul,
+.mdx-editor .mdxeditor-root-content ul { list-style: disc; padding-left: 1.5rem; }
+.mdx-editor ul ul { list-style: circle; }
+.mdx-editor ul ul ul { list-style: square; }
+
+/* Task list checkboxes and block wrappers */
+.mdx-editor li[data-task-list-item] {
+  list-style: none;
+}
+.mdx-editor .mdxeditor-root-content .mdxeditor-codeblock,
+.mdx-editor .mdxeditor-root-content .mdxeditor-table,
+.mdx-editor .mdxeditor-root-content .mdxeditor-toolbar,
+.mdx-editor .mdxeditor-root-content .mdxeditor-content-wrapper {
+  max-width: 100%;
+  overflow: auto;
+}
+
+/* Code block styling */
+.mdx-editor pre,
+.mdx-editor code,
+.mdx-editor .mdxeditor-codeblock {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+.mdx-editor pre {
+  background: #0b1015;
+  color: #e5e7eb;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  overflow: auto;
+}
+.mdx-editor code {
+  background: #f3f4f6;
+  color: #111827;
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.25rem;
+}
+
+/* Make editor container larger to prevent overflow and give space */
+.mdx-editor {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.mdx-editor .mdxeditor-root-content {
+  padding-right: 0.25rem;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+/* Paragraph and Quote styles to make block type changes visible */
+.mdx-editor p,
+.mdx-editor .mdxeditor-root-content p {
+  margin: 0.5rem 0 0.75rem;
+  font-size: 1rem;
+}
+
+.mdx-editor blockquote,
+.mdx-editor .mdxeditor-root-content blockquote {
+  margin: 0.75rem 0;
+  padding: 0.5rem 0.75rem;
+  border-left: 4px solid #e5e7eb; /* neutral-200 */
+  background: #f9fafb; /* neutral-50 */
+  color: inherit;
+}

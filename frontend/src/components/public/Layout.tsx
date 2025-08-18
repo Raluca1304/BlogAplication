@@ -45,7 +45,17 @@ export function Layout(): JSX.Element {
   if (isLoginPage) {
     return (
       <div className="min-h-screen">
-        <Outlet />
+        <div className="p-4 border-b border-gray-200 shadow-sm">
+          <div className="flex items-center">
+            <div className="flex items-center gap-2 text-gray-700 text-lg font-medium">
+              <Telescope className="h-5 w-5" />
+              Travel Blog
+            </div>
+          </div>
+        </div>
+        <div className="p-4 w-full mx-auto flex items-start justify-center min-h-[calc(100vh-80px)] pt-6">
+          <Outlet />
+        </div>
       </div>
     );
   }
@@ -170,7 +180,7 @@ export function Layout(): JSX.Element {
                               </NavLink>
                             </NavigationMenuLink>
                           </li>
-                          {roleUtils.isAuthor(role) && (
+                          {(roleUtils.isAuthor(role) || roleUtils.isAdmin(role)) && (
                             <li>
                               <NavigationMenuLink asChild>
                                 <NavLink to="/create">

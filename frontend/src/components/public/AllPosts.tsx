@@ -1,4 +1,6 @@
 import React, { useState, useEffect, JSX } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { NavLink, useSearchParams } from "react-router";
 import { Article } from '../../types';
 import { Button } from '@/components/ui/button';
@@ -170,9 +172,11 @@ export function AllPosts(): JSX.Element {
                                 <span>{new Date(article.createdDate).toLocaleDateString()}</span>
                             </div>
 
-                            <p className="mb-4 text-gray-600">
-                                {article.summary}
-                            </p>
+                            <div className="mb-4 text-gray-700 prose prose-sm max-w-none">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {article.summary || ''}
+                                </ReactMarkdown>
+                            </div>
 
                             <Button variant="navy">
                                 <NavLink 

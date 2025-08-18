@@ -3,6 +3,7 @@ import { User } from '../../../types';
 import { ActionButtonGroup } from '../Actions';
 // import { Pagination, usePagination } from '../Actions';
 import { Button } from '@/components/ui/button';
+import { ListFilter } from 'lucide-react';
 import { 
     Pagination, 
     PaginationContent, 
@@ -307,17 +308,17 @@ export function Users() {
             
             {/* Secțiunea de filtrare */}
             <div
-            className="mb-4 p-4 bg-gray-100 rounded-md"
+            
             >
-                <div className="flex items-center gap-4">
-                    <p className="font-bold">
-                        Filter by Role
-                    </p>
+                <div className="flex items-center gap-4 justify-end">
+                    
+                    
                     <Select
                         value={roleFilter}
                         onValueChange={(value) => handleFilterChange(value || null)}
                     >
-                        <SelectTrigger className="w-[280px]">
+                        <SelectTrigger className="w-[280px] border border-gray-300 rounded-md mr-10">
+                        <ListFilter className="h-4 w-4 mr-2 flex items-center" />
                             <SelectValue placeholder="Select a role" />
                         </SelectTrigger>
                         <SelectContent>

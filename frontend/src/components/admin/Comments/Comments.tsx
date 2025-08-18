@@ -3,6 +3,7 @@ import { Comment } from '../../../types';
 import { ActionButtonGroup } from '../Actions';
 import { formatDateTime } from '../utils/formatDataTime';
 import { Button } from '@/components/ui/button';
+import { ListFilter } from 'lucide-react';
 import { 
     Pagination, 
     PaginationContent, 
@@ -259,16 +260,14 @@ export function Comments() {
         <div>
             <h2>Comments</h2>
             
-            <div className="mb-4 p-4 bg-gray-100 rounded-md border border-gray-300">
-                <div className="flex items-center gap-2">
-                    <p className="font-bold">
-                        Filter by Article
-                    </p>
+            <div >
+                <div className="flex justify-end items-center gap-2">
                     <Select
                         value={articleFilter}
                         onValueChange={(value) => handleFilterChange(value || null)}
                     >
-                        <SelectTrigger className="w-[280px]">
+                        <SelectTrigger className="w-[280px] border border-gray-300 rounded-md">
+                            <ListFilter className="h-4 w-4 opacity-60" />
                             <SelectValue placeholder="Select an article" />
                         </SelectTrigger>
                         <SelectContent>

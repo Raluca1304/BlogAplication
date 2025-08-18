@@ -225,7 +225,7 @@ export function Articles(): JSX.Element {
         
         <div>
             <h2>Manage Articles</h2>
-            < Button onClick={() => window.location.href = '/create'} variant="navy">Create Article</Button>
+            {/* < Button onClick={() => window.location.href = '/create'} variant="navy">Create Article</Button> */}
             <Table className="table-auto mt-4 border-collapse border-spacing-0 border border-gray-300 rounded-md shadow-md">
                 <TableHeader className="bg-gray-100">   
                     <TableRow>

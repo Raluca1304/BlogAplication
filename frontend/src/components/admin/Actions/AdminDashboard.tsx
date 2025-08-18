@@ -65,13 +65,6 @@ export function AdminDashboard() {
             count: stats.usersCount,
             link: "/admin/users",
             visible: roleUtils.canManageUsers(role)
-        },
-        {
-            title: "Create Article",
-            description: "Write and publish new articles",
-            count: null,
-            link: "/create",
-            visible: roleUtils.canCreateArticles(role)
         }
     ];
 
@@ -86,12 +79,12 @@ export function AdminDashboard() {
                 <p className="text-gray-600">Welcome to the administration panel!  Manage your blog content and users.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 mb-10 mt-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 mb-10 mt-10 justify-center">
                 
                 {dashboardCards.filter(card => card.visible).map((card, index) => (
                     <div
                         key={index}
-                        className="bg-gray-100 border-gray-300 rounded-md p-4 cursor-pointer text-center"
+                        className=" ml-100 justify-center bg-gray-100 border-gray-300 rounded-md p-4 shadow-md w-1/2  text-center"
                         onClick={() => window.location.href = card.link}
                     >
                         <h3 className="text-lg">{card.title}</h3>
