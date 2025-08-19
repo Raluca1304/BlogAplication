@@ -32,6 +32,7 @@ export function EditArticle(): React.JSX.Element {
       mode="edit"
       onSave={(article) => handleSave(article as Post)}
       onCancel={handleCancel}
+      onBack={handleCancel}
     />
   );
 } 

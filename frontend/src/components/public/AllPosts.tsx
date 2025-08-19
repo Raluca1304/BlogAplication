@@ -4,6 +4,8 @@ import remarkGfm from 'remark-gfm';
 import { NavLink, useSearchParams } from "react-router";
 import { Article } from '../../types';
 import { Button } from '@/components/ui/button';
+import YoutubeExtractor from '../admin/utils/youtubeExtractor';
+import { Calendar, CalendarClock } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -13,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { formatDateTime } from '../admin/utils/formatDataTime';
 
 export function AllPosts(): JSX.Element {
     const [searchParams] = useSearchParams();
@@ -35,8 +38,10 @@ export function AllPosts(): JSX.Element {
                 return response.json();
             })
             .then((data: Article[]) => {
-                console.log("All articles data:", data);
-                setArticles(data);
+                const sortedArticles = data.sort((a, b) => {
+                    return new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime();
+                });
+                setArticles(sortedArticles);
             })
             .catch((err) => {
                 console.error("Error fetching articles:", err);
@@ -91,9 +96,6 @@ export function AllPosts(): JSX.Element {
                     <h1 className="p-0 m-0 bold font-extrabold text-2xl">All Posts</h1>
                 {!searchQuery && (
                     <div className="flex items-center gap-2">
-                        <p className="font-bold">
-                            Filter by Author
-                        </p>
                         <Select value={selectedAuthor || ''} onValueChange={(value) => setSelectedAuthor(value || null)}>
                             <SelectTrigger className="w-[280px]">
                                 <SelectValue placeholder="Select an author" />
@@ -160,7 +162,7 @@ export function AllPosts(): JSX.Element {
                                 {article.title}
                             </h3>
 
-                            <div className="mb-4 flex items-center gap-2 text-sm text-gray-600">
+                            <div className="mb-4 flex items-center gap-1 text-sm text-gray-600">
                                 <span>Created by</span>
                                 <NavLink 
                                     to={`/public/users/${article.authorId}`} 
@@ -168,14 +170,31 @@ export function AllPosts(): JSX.Element {
                                 >
                                     {article.author}
                                 </NavLink>
-                                <span>•</span>
-                                <span>{new Date(article.createdDate).toLocaleDateString()}</span>
+                                <div className="flex items-center gap-1 ml-3">
+                                    <Calendar className="w-4 h-4" />
+                                    {formatDateTime(article.createdDate)} 
+                                </div>
                             </div>
 
                             <div className="mb-4 text-gray-700 prose prose-sm max-w-none">
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                    {article.summary || ''}
-                                </ReactMarkdown>
+                                {article.summary ? (
+                                    <div>
+                                        {/* Process content to handle YouTube directives */}
+                                        {article.summary.split(/(:youtube\[[^\]]+\])/).map((part, index) => {
+                                            const youtubeMatch = part.match(/:youtube\[([^\]]+)\]/);
+                                            if (youtubeMatch) {
+                                                return <YoutubeExtractor key={index} id={youtubeMatch[1]} />;
+                                            }
+                                            return part ? (
+                                                <ReactMarkdown key={index} remarkPlugins={[remarkGfm]}>
+                                                    {part}
+                                                </ReactMarkdown>
+                                            ) : null;
+                                        })}
+                                    </div>
+                                ) : (
+                                    <p>No summary available</p>
+                                )}
                             </div>
 
                             <Button variant="navy">

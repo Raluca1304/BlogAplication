@@ -1,9 +1,9 @@
 import React, { JSX, useState } from 'react';
-import { Outlet, NavLink, useLocation, useNavigate } from 'react-router';
+import { Outlet, NavLink, useLocation, useNavigate, UNSAFE_RSCDefaultRootErrorBoundary } from 'react-router';
 import { roleUtils } from '../../types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, LogOut, LogIn , Telescope, Mail} from 'lucide-react';
+import { Search, LogOut, LogIn , Telescope, LayoutDashboard, Users, StickyNote, MessageCircle, BookOpen, SquarePen, LibraryBig, BookText} from 'lucide-react';
 import { getInitials } from '../admin/utils/formatDataTime';
 
 import {
@@ -38,8 +38,6 @@ export function Layout(): JSX.Element {
       setSearchQuery('');
     }
   };
-
-
 
 
   if (isLoginPage) {
@@ -124,7 +122,10 @@ export function Layout(): JSX.Element {
                             <li>
                               <NavigationMenuLink asChild>
                                 <NavLink to="/admin/dashboard">
-                                  <div className="font-medium">Dashboard</div>
+                                  <div className="flex items-center">
+                                    <LayoutDashboard className="h-4 w-4" />
+                                    <span className="font-medium ml-2">Dashboard</span>
+                                  </div>
                                   <div className="text-muted-foreground">
                                     Admin panel overview
                                   </div>
@@ -134,7 +135,10 @@ export function Layout(): JSX.Element {
                             <li>
                               <NavigationMenuLink asChild>
                                 <NavLink to="/admin/users">
-                                  <div className="font-medium">Users</div>
+                                  <div className="flex items-center">
+                                    <Users className="h-4 w-4" />
+                                    <span className="font-medium ml-2">Users</span>
+                                  </div>
                                   <div className="text-muted-foreground">
                                     Manage users and roles
                                   </div>
@@ -144,7 +148,10 @@ export function Layout(): JSX.Element {
                             <li>
                               <NavigationMenuLink asChild>
                                 <NavLink to="/admin/articles">
-                                  <div className="font-medium">Articles</div>
+                                  <div className="flex items-center">
+                                    <StickyNote className="h-4 w-4" />
+                                    <span className="font-medium ml-2">Articles</span>
+                                  </div>
                                   <div className="text-muted-foreground">
                                     Manage all articles
                                   </div>
@@ -154,7 +161,10 @@ export function Layout(): JSX.Element {
                             <li>
                               <NavigationMenuLink asChild>
                                 <NavLink to="/admin/comments">
-                                  <div className="font-medium">Comments</div>
+                                  <div className="flex items-center">
+                                    <MessageCircle className="h-4 w-4" />
+                                    <span className="font-medium ml-2">Comments</span>
+                                  </div>
                                   <div className="text-muted-foreground">
                                     Moderate comments
                                   </div>
@@ -173,7 +183,10 @@ export function Layout(): JSX.Element {
                           <li>
                             <NavigationMenuLink asChild>
                               <NavLink to="/public/posts">
-                                <div className="font-medium">All Posts</div>
+                                <div className="flex items-center">
+                                  <LibraryBig className="h-4 w-4" />
+                                  <span className="font-medium ml-2">All Posts</span>
+                                </div>
                                 <div className="text-muted-foreground">
                                   Browse all articles
                                 </div>
@@ -183,8 +196,11 @@ export function Layout(): JSX.Element {
                           {(roleUtils.isAuthor(role) || roleUtils.isAdmin(role)) && (
                             <li>
                               <NavigationMenuLink asChild>
-                                <NavLink to="/create">
-                                  <div className="font-medium">Create Article</div>
+                                <NavLink to="/public/articles/create">
+                                  <div className="flex items-center">
+                                    <SquarePen className="h-4 w-4" />
+                                    <span className="font-medium ml-2">Create Article</span>
+                                  </div>
                                   <div className="text-muted-foreground">
                                     Write a new article
                                   </div>
@@ -192,6 +208,21 @@ export function Layout(): JSX.Element {
                               </NavigationMenuLink>
                             </li>
                           )}
+                          <li>
+                            {(roleUtils.isAuthor(role) || roleUtils.isAdmin(role)) && (
+                              <NavigationMenuLink asChild>
+                                <NavLink to={`/public/users/${localStorage.getItem('username')}`}>
+                                  <div className="flex items-center">
+                                    <BookText className="h-4 w-4" />
+                                    <span className="font-medium ml-2">My Articles</span>
+                                  </div>
+                                  <div className="text-muted-foreground">
+                                    View and edit your articles
+                                  </div>
+                                </NavLink>
+                              </NavigationMenuLink>
+                            )}
+                          </li>
                         </ul>
                       </NavigationMenuContent>
                     </NavigationMenuItem>

@@ -5,6 +5,10 @@ import { Button } from '@/components/ui/button';
 import { getInitials } from '../admin/utils/formatDataTime';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import YoutubeExtractor from '../admin/utils/youtubeExtractor';
+import { Calendar, CalendarClock, BookText, History, Clock} from 'lucide-react'; 
+import { formatDateTime } from '../admin/utils/formatDataTime';
+
 
 
 
@@ -21,7 +25,13 @@ export function Home(): JSX.Element {
         if (!res.ok) throw new Error('Failed to load latest articles');
         return res.json();
       })
-      .then((data: Article[]) => setLatest(data))
+      .then((data: Article[]) => {
+        // Sort articles by creation date - newest first (for extra safety)
+        const sortedArticles = data.sort((a, b) => {
+          return new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime();
+        });
+        setLatest(sortedArticles);
+      })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
@@ -33,7 +43,10 @@ export function Home(): JSX.Element {
         Discover amazing articles, stories, and insights from our community of writers. Explore the latest posts and join the conversation!
       </p>
 
-      <h2 className="text-2xl font-semibold mb-4">Latest posts</h2>
+      <div className="flex items-center gap-2 mb-4">
+        <History className="h-4 w-4 font-bold" />
+        <h2 className="text-2xl font-semibold">Latest posts</h2>
+      </div>
 
       {loading && (
         <div className="p-4 text-center">Loading latest posts...</div>
@@ -73,9 +86,24 @@ export function Home(): JSX.Element {
             </h3>
             
             <div className="mb-4 text-gray-700 prose prose-sm max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {article.summary || ''}
-              </ReactMarkdown>
+              {article.summary ? (
+                <div>
+                  {/* Process content to handle YouTube directives */}
+                  {article.summary.split(/(:youtube\[[^\]]+\])/).map((part, index) => {
+                    const youtubeMatch = part.match(/:youtube\[([^\]]+)\]/);
+                    if (youtubeMatch) {
+                      return <YoutubeExtractor key={index} id={youtubeMatch[1]} />;
+                    }
+                    return part ? (
+                      <ReactMarkdown key={index} remarkPlugins={[remarkGfm]}>
+                        {part}
+                      </ReactMarkdown>
+                    ) : null;
+                  })}
+                </div>
+              ) : (
+                <p>No summary available</p>
+              )}
             </div>
             <Button variant="navy">
 

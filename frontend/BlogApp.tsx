@@ -15,8 +15,10 @@ import { Users } from './src/components/admin/Users/Users';
 import { User } from './src/components/admin/Users/User/User';
 import { EditUser } from './src/components/admin/Users/User/EditUser';
 import { AdminDashboard } from './src/components/admin/Actions/AdminDashboard';
-import { Posts } from './src/Posts';
-import { AllPosts, PostDetail, PublicHome } from './src/components/public';
+import { AllPosts, PostDetail, PublicHome} from './src/components/public';
+import { EditMyArticle } from './src/components/public/EditMyArticle';
+import { CreateMyArticle } from './src/components/public/CreateMyArticle';
+
 
 export function BlogApp(): JSX.Element {
   return (
@@ -35,12 +37,14 @@ export function BlogApp(): JSX.Element {
             <Route path="admin/comments/:id/edit" element={<EditCommentPage />} />
             <Route path="users/:id" element={<UsersPosts />} />
             <Route path="create" element={<CreateArticle />} />
-            <Route path="admin/users" element={<Users />} />
+            <Route path="admin/users" element={<Users />} />      
             <Route path="admin/users/:id" element={<User />} />
             <Route path="admin/users/:id/edit" element={<EditUser />} />
             <Route path="public/posts" element={<AllPosts />} />
             <Route path="public/posts/:id" element={<PostDetail />} />
             <Route path="public/users/:id" element={<UsersPosts />} />
+            <Route path="public/articles/create" element={<CreateMyArticle />} />
+            <Route path="public/articles/:id/edit" element={<EditMyArticle />} />
             </Route>
         </Routes>
     </BrowserRouter>

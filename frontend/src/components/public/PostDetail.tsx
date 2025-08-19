@@ -5,6 +5,9 @@ import rehypeHighlight from 'rehype-highlight';
 import { NavLink, useParams } from "react-router";
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import YoutubeExtractor from '../admin/utils/youtubeExtractor';
+import { Calendar, CalendarClock } from 'lucide-react';
+import { formatDateTime } from '../admin/utils/formatDataTime';
 
 interface Article {
   id: string;
@@ -207,29 +210,50 @@ export function PostDetail(): JSX.Element {
                 <div
                 className="mb-6 pb-4 border-b border-gray-200 flex items-center gap-4 text-sm text-gray-600"
                 >
-                    <span>By</span>
+                    <span>By   <span> </span>
                     <NavLink 
                         to={`/public/users/${article.authorId}`}
                         className="text-beige font-bold">
                         {article.author}
                     </NavLink>
-                    <span>•</span>
-                    <span>Published: {new Date(article.createdDate).toLocaleDateString()}</span>
+                    </span>
+                    <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Published: {formatDateTime(article.createdDate)}
+                    </div>
                     {article.updatedDate && (
                         <>
-                            <span>•</span>
-                            <span>Updated: {new Date(article.updatedDate).toLocaleDateString()}</span>
+                            <div className="flex items-center gap-2">
+                                <CalendarClock className="w-4 h-4" />
+                                Updated: {formatDateTime(article.updatedDate)}
+                            </div>
                         </>
                     )}
                 </div>
 
                 <div className="text-gray-700 leading-relaxed text-base prose max-w-none">
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      rehypePlugins={[rehypeHighlight]}
-                    >
-                      {article.content || ''}
-                    </ReactMarkdown>
+                    {article.content ? (
+                        <div>
+                            {/* Process content to handle YouTube directives */}
+                            {article.content.split(/(:youtube\[[^\]]+\])/).map((part, index) => {
+                                const youtubeMatch = part.match(/:youtube\[([^\]]+)\]/);
+                                if (youtubeMatch) {
+                                    return <YoutubeExtractor key={index} id={youtubeMatch[1]} />;
+                                }
+                                return part ? (
+                                    <ReactMarkdown 
+                                        key={index} 
+                                        remarkPlugins={[remarkGfm]}
+                                        rehypePlugins={[rehypeHighlight]}
+                                    >
+                                        {part}
+                                    </ReactMarkdown>
+                                ) : null;
+                            })}
+                        </div>
+                    ) : (
+                        <p>No content available</p>
+                    )}
                 </div>
             </article>
 

@@ -13,6 +13,7 @@ import {
     PaginationPrevious 
 } from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Calendar, CalendarClock } from 'lucide-react';
 
 // Custom hook pentru logica de paginare
 function usePagination(itemsPerPage: number = 5) {
@@ -183,8 +184,12 @@ export function Articles(): JSX.Element {
         fetch("/api/articles")
             .then(response => response.json())
             .then((data: Post[]) => {
-                console.log("Articles data:", data); 
-                setArticles(data);
+                console.log("Articles data:", data);
+                // Sort articles by creation date - newest first
+                const sortedArticles = data.sort((a, b) => {
+                    return new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime();
+                });
+                setArticles(sortedArticles);
             })
             .catch((err) => console.error("Error fetching articles:", err));
     }, []);
@@ -255,10 +260,12 @@ export function Articles(): JSX.Element {
                                 {article.content.substring(0, 25)}...
                             </TableCell>
                             <TableCell className="border border-gray-300 p-4">
+                                
                                 {formatDateTime(article.createdDate)}
                             </TableCell>
                             <TableCell className="border border-gray-300 p-4">
-                                {formatDateTime(article.updatedDate || '')}
+                                
+                                    {formatDateTime(article.updatedDate || '')}
                             </TableCell>
                             <TableCell className="border border-gray-300 p-4 text-center">
                                 <ActionButtonGroup

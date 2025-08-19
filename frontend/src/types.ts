@@ -121,6 +121,7 @@ export interface ArticleFormProps {
   initialData?: Partial<Post>;
   onSave: (article: Post) => void;
   onCancel: () => void;
+  onBack?: () => void;
   mode: 'create' | 'edit';
 }
 

@@ -2,45 +2,55 @@ import React, { useState, useEffect, JSX } from 'react';
 import { NavLink, useParams } from "react-router";
 import { User, Article } from '../../types';
 import { Button } from '@/components/ui/button';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import YoutubeExtractor from '../admin/utils/youtubeExtractor';
 
 export function UsersPosts(): JSX.Element {
     const { id } = useParams<{ id: string }>();
     const [articles, setArticles] = useState<Article[]>([]);
     const [userAuthor, setUserAuthor] = useState<string>("");
+    const [authorUser, setAuthorUser] = useState<User | null>(null);
     const [selectedAuthor, setSelectedAuthor] = useState<string | null>(null);
   
     useEffect(() => {
         if (!id) return;
         
+        console.log("UsersPosts: Loading data for user ID/username:", id);
         const token: string | null = localStorage.getItem("jwt");
         
-        // Create fetch options
         const fetchOptions: RequestInit = token 
             ? { headers: { Authorization: `Bearer ${token}` } }
             : {};
 
-        fetch(`/api/articles?authorId=${id}`, fetchOptions)
+        fetch(`/api/articles`, fetchOptions)
         .then(res => {
             if (!res.ok) throw new Error('Failed to fetch articles');
             return res.json();
         })
-        .then((data: Article[]) => setArticles(data))
+        .then((data: Article[]) => {
+            const userArticles = data.filter(article => article.author === id);
+            const sortedUserArticles = userArticles.sort((a, b) => {
+                return new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime();
+            });
+            setArticles(sortedUserArticles);
+        })
         .catch(err => console.error("Error fetching articles: ", err));
   
-        // Fetch user info - should work for everyone  
-        fetch(`/api/users/${id}`, fetchOptions)
-        .then(res => {
-            if (!res.ok) throw new Error('Failed to fetch user');
-            return res.json();
-        })
-        .then((user: User) => {
-          if (user && user.firstName && user.lastName) {
-            setUserAuthor(`${user.firstName} ${user.lastName}`);
-          } else {
-            setUserAuthor("Unknown Author");
-          }
-        })
-        .catch(err => console.error("Error fetching user: ", err));
+        console.log("Setting author name from URL parameter:", id);
+        setUserAuthor(id || "Unknown Author");
+        
+        if (id) {
+          setAuthorUser({
+            id: '',
+            username: id,
+            firstName: '',
+            lastName: '',
+            email: '',
+            role: ''
+          });
+        }
     }, [id]);
   
     const filteredArticles: Article[] = selectedAuthor
@@ -74,11 +84,15 @@ export function UsersPosts(): JSX.Element {
         alert("Error deleting article!");
       }
     };
+
+    const handleEdit = (articleId: string): void => {
+      window.location.href = `/public/articles/${articleId}/edit`;
+    };
   
     return (
         <div  className="p-4 max-w-2xl mx-auto mt-10">
-            <div className="mb-4">
-                <Button variant="burgundy" className="mr-2">   
+            <div className="mb-4 flex justify-between items-center flex-wrap gap-2">
+                <Button variant="burgundy">   
                     <NavLink 
                         to={`/public/posts`}>
                         ← Back to All Posts
@@ -87,7 +101,10 @@ export function UsersPosts(): JSX.Element {
             </div>
             
             <h2 className="mb-4 text-2xl font-bold text-center">
-                {userAuthor ? `${userAuthor}'s Blog` : 'Loading Author...'}
+                {authorUser && authorUser.username === currentUser ? 
+                    'My Articles' : 
+                    `${userAuthor}'s Articles`
+                }
             </h2>
             
             {Array.isArray(filteredArticles) && filteredArticles.length > 0 ? (
@@ -106,36 +123,72 @@ export function UsersPosts(): JSX.Element {
                                 <span>{new Date(article.createdDate).toLocaleDateString()}</span>
                             </div>
 
-                            <p className="mb-4 text-gray-600 text-sm">
-                                {article.summary}
-                            </p>
+                            <div className="mb-4 text-gray-700 prose prose-sm max-w-none">
+                                {article.summary ? (
+                                    <div>
+                                        {article.summary.split(/(:youtube\[[^\]]+\])/).map((part, index) => {
+                                            const youtubeMatch = part.match(/:youtube\[([^\]]+)\]/);
+                                            if (youtubeMatch) {
+                                                return <YoutubeExtractor key={index} id={youtubeMatch[1]} />;
+                                            }
+                                            return part ? (
+                                                <ReactMarkdown 
+                                                    key={index} 
+                                                    remarkPlugins={[remarkGfm]}
+                                                    rehypePlugins={[rehypeHighlight]}
+                                                >
+                                                    {part}
+                                                </ReactMarkdown>
+                                            ) : null;
+                                        })}
+                                    </div>
+                                ) : (
+                                    <p>No summary available</p>
+                                )}
+                            </div>
 
-                            <div
-                            className="flex justify-between items-center gap-4">
+                            <div className="flex justify-between items-center gap-4">
                                 <Button variant="navy">
                                     <NavLink 
                                         to={`/public/posts/${article.id}`}>
                                         Read Full Article →
                                     </NavLink>
-                                    </Button>
+                                </Button>
+                                
                                 {isLoggedIn && article.author === currentUser && (
-                                    <Button
-                                        onClick={() => handleDelete(article.id)}
-                                        variant="redDark"
-                                    >
-                                        Delete
-                                    </Button> 
+                                    <div className="flex gap-2">
+                                        <Button
+                                            onClick={() => handleEdit(article.id)}
+                                            variant="greenDark"
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            onClick={() => handleDelete(article.id)}
+                                            variant="redDark"
+                                        >
+                                            Delete
+                                        </Button> 
+                                    </div>
                                 )}
                             </div>
                         </div>
                     ))}
                 </div>
             ) : (
-                <div className="text-center p-4 bg-gray-100 rounded-md">
-                    {userAuthor ? 
-                        `${userAuthor} hasn't published any articles yet.` : 
-                        'No articles found for this author.'
-                    }
+                <div className="text-center p-6 bg-gray-100 rounded-md">
+                    {authorUser && authorUser.username === currentUser ? (
+                        <div>
+                            <p className="mb-4 text-gray-600">You haven't published any articles yet.</p>
+                            <Button variant="greenDark">
+                                <NavLink to="/public/articles/create">
+                                    Create Your First Article
+                                </NavLink>
+                            </Button>
+                        </div>
+                    ) : (
+                        <p className="text-gray-600">{userAuthor} hasn't published any articles yet.</p>
+                    )}
                 </div>
             )}
         </div>

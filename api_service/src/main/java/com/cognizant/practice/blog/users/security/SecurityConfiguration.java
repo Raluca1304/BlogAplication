@@ -45,6 +45,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.DELETE, "/comments/{commentId}").hasRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/comments/{commentId}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/articles/{id}/comments").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/articles/**").hasRole("AUTHOR")
                         .requestMatchers(HttpMethod.DELETE, "/articles/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/articles/**").hasRole("AUTHOR")
                         .requestMatchers(HttpMethod.POST, "/articles/**").hasRole("AUTHOR")

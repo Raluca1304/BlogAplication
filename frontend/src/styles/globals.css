@@ -223,3 +223,114 @@ main {
   color: inherit;
 }
 
+/* Markdown/Prose links styling - blue with underline */
+.prose a,
+.prose-sm a {
+  color: #1e40af !important;
+  text-decoration: underline !important;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.prose a:hover,
+.prose-sm a:hover {
+  color: #1d4ed8 !important;
+  text-decoration: underline !important;
+}
+
+.prose a:visited,
+.prose-sm a:visited {
+  color: #1e40af !important;
+}
+
+/* Markdown/Prose lists styling - proper list display */
+.prose ul,
+.prose-sm ul {
+  list-style: disc !important;
+  padding-left: 1.5rem !important;
+  margin: 1rem 0 !important;
+}
+
+.prose ol,
+.prose-sm ol {
+  list-style: decimal !important;
+  padding-left: 1.5rem !important;
+  margin: 1rem 0 !important;
+}
+
+.prose ul ul,
+.prose-sm ul ul {
+  list-style: circle !important;
+}
+
+.prose ul ul ul,
+.prose-sm ul ul ul {
+  list-style: square !important;
+}
+
+.prose li,
+.prose-sm li {
+  margin: 0.25rem 0 !important;
+}
+
+/* Strong/Bold styling */
+.prose strong,
+.prose-sm strong,
+.prose b,
+.prose-sm b {
+  font-weight: 700 !important;
+}
+
+/* Italic styling */
+.prose em,
+.prose-sm em,
+.prose i,
+.prose-sm i {
+  font-style: italic !important;
+}
+
+/* Code inline styling */
+.prose code,
+.prose-sm code {
+  background: #f3f4f6 !important;
+  color: #111827 !important;
+  padding: 0.15rem 0.35rem !important;
+  border-radius: 0.25rem !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 0.9em !important;
+}
+
+/* YouTube video styling in prose content */
+.prose iframe,
+.prose-sm iframe {
+  margin: 1rem 0 !important;
+  border-radius: 0.5rem !important;
+}
+
+.prose table, .prose-sm table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin: 1.5rem 0 !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.prose thead { background-color: #f9fafb !important; }
+.prose th {
+  padding: 0.75rem 1rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  border-bottom: 2px solid #e5e7eb !important;
+}
+
+
+.prose td {
+  padding: 0.75rem 1rem !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  vertical-align: top !important;
+}
+
+.prose tbody tr:hover {
+  background-color: #f9fafb !important;
+}
