@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import { ArticleForm } from '../admin/forms/ArticleForm';
 import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 
 export function CreateMyArticle() {
   const navigate = useNavigate();
@@ -56,12 +57,18 @@ export function CreateMyArticle() {
   return (
     <div>
       <div className="p-4 max-w-5xl mx-auto">
-        <div className="mb-4">
-          <Button variant="burgundy" onClick={handleCancel}>
-            {isAdmin ? '← Back to Admin Articles' : '← Back to My Articles'}
-          </Button>
+        <div className="flex justify-between items-center mb-6 relative">
+            <NavLink 
+                to="/public/posts"
+                className="text-gray-800 hover:text-gray-400 transition-colors"
+            >
+                <ChevronLeft className="w-8 h-8" />
+            </NavLink>  
+            <h1 className="absolute left-1/2 transform -translate-x-1/2 bold font-extrabold text-3xl">
+                {isAdmin ? 'Create Article' : 'Create New Article'}
+            </h1>
+            <div></div> {/* Empty div for balance */}
         </div>
-        <h1 className="text-2xl font-bold mb-4">Create New Article</h1>
       </div>
       
       <ArticleForm 

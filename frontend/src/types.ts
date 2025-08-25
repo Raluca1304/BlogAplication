@@ -35,6 +35,7 @@ export interface Post {
   summary: string;
   authorName: string;
   authorId: string;
+  featuredImageUrl?: string;
   createdDate: string;
   updatedDate?: string;
 }
@@ -45,6 +46,8 @@ export interface Article {
   author: string;
   authorId: string;
   summary: string;
+  content?: string;
+  featuredImageUrl?: string;
   createdDate: string;
 }
 
@@ -128,6 +131,7 @@ export interface ArticleFormProps {
 export interface FormDataArticle {
   title: string;
   content: string;
+  featuredImageUrl?: string;
 }
 
 export interface CommentFormProps {

@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router';
+import { useParams, NavLink } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { User, FormDataUser } from '../../../../types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ChevronLeft } from 'lucide-react';
 
 const ROLES = ['ROLE_USER', 'ROLE_AUTHOR', 'ROLE_ADMIN'];
 
@@ -28,6 +30,7 @@ export function EditUser() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
 
     const { 
         register, 
@@ -76,6 +79,7 @@ export function EditUser() {
     const onSubmit = async (data: FormDataUser) => {
         setSaving(true);
         setError(null);
+        setSuccess(null);
         const token = localStorage.getItem('jwt');
 
         try {
@@ -92,17 +96,14 @@ export function EditUser() {
                 throw new Error('Failed to update user');
             }
 
-            <Alert variant="default">  
-                <AlertTitle>Success</AlertTitle>
-                <AlertDescription>User updated successfully!</AlertDescription>
-            </Alert>
-            window.location.href = `/admin/users/${id}`;
+            setSuccess('User updated successfully!');
+            // Redirect after a short delay to show success message
+            setTimeout(() => {
+                window.location.href = `/admin/users/${id}`;
+            }, 1500);
         } catch (err: any) {
             console.error('Error updating user:', err);
-            <Alert variant="destructive">
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>Failed to update user: {err.message}</AlertDescription>
-            </Alert> 
+            setError(`Failed to update user: ${err.message}`);
         } finally {
             setSaving(false);
         }
@@ -113,7 +114,7 @@ export function EditUser() {
     };
 
     if (loading) {
-        return <div>Loading user...</div>;
+        return <div className="p-4 text-center">Loading user...</div>;
     }
 
     if (error && !user) {
@@ -148,117 +149,157 @@ export function EditUser() {
     );
 
     return (
-        <div className="p-4 max-w-2xl mx-auto">
-            <h2>Edit User: {user.username}</h2>
-            
-            <div className="mb-4">
-                <p><strong>Note:</strong> You can edit all user fields. Changes will be saved when you click "Save Changes".</p>
+        <div className="p-4 max-w-5xl mx-auto">
+            {/* Back Navigation */}
+            <div className="flex items-center text-sm text-gray-600 mb-4 mt-5">
+                <NavLink to="/admin/users" className="text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-2">
+                    <ChevronLeft className="w-4 h-4" />
+                    Back to All Users
+                </NavLink>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div>
-                    <Input 
-                        type="text" 
-                        placeholder="Username" 
-                        {...register("username")} 
-                        className="mb-4"
-                    />
-                    {errors.username && (
-                        <span className="text-red-500 text-sm">
-                            {errors.username.message}
-                        </span>
-                    )}
-                </div>
-                
-                <div className="mb-4">
-                    <Input 
-                        type="text" 
-                        placeholder="First name" 
-                        {...register("firstName")} 
-                        className="mb-4"
-                    />
-                    {errors.firstName && (
-                        <span className="text-red-500 text-sm">
-                            {errors.firstName.message}
-                        </span>
-                    )}
-                </div>
-                
-                <div>
-                    <Input 
-                        type="text" 
-                        placeholder="Last name" 
-                        {...register("lastName")} 
-                        className="mb-4"
-                    />
-                    {errors.lastName && (
-                        <span className="text-red-500 text-sm">
-                            {errors.lastName.message}
-                        </span>
-                    )}
-                </div>
-                
-                <div>
-                        <Input 
-                        type="email" 
-                        placeholder="Email" 
-                        className="mb-4"
-                        {...register("email")} 
-                    />
-                    {errors.email && (
-                        <span className="text-red-500 text-sm">
-                            {errors.email.message}
-                        </span>
-                    )}
-                </div>
-                
-                <div>
-                    <Select 
-                        {...register("role")}
-                    >
-                        <SelectTrigger className="w-[120px] mb-4">
-                            <SelectValue placeholder="Select role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {ROLES.map(role => (
-                                <SelectItem key={role} value={role}>
-                                    {role.replace('ROLE_', '')}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    {errors.role && (
-                        <span className="text-red-500 text-sm">
-                            {errors.role.message}
-                        </span>
-                    )}
-                </div>
-                
-                <div>
-                    <Button 
-                        type="submit" 
-                        disabled={saving || !hasChanges}
-                        variant="greenDark"
-                    >
-                        {saving ? 'Saving...' : 'Save Changes'}
-                    </Button>
-                    <Button 
-                        type="button" 
-                        onClick={handleCancel} 
-                        disabled={saving}
-                        variant="redDark"
-                        className="ml-4"
-                    >
-                        Cancel
-                    </Button>
-                </div>
-                
-                {error && (
-                    <div className="text-red-500 mt-4 p-2 bg-red-50 border border-red-200 rounded">
-                        {error}
+            <Card className="max-w-3xl mx-auto">
+                <CardHeader className="border-b">
+                    <CardTitle className="text-2xl">
+                        Edit User: {user.username}
+                    </CardTitle>
+                    <div className="mt-2 text-sm text-gray-600">
+                        You can edit all user fields. Changes will be saved when you click "Save Changes".
                     </div>
-                )}
-            </form>
+                </CardHeader>
+                
+                <CardContent className="p-6">
+                    {/* Success Alert */}
+                    {success && (
+                        <Alert variant="default" className="mb-6">
+                            <AlertTitle>Success</AlertTitle>
+                            <AlertDescription>{success}</AlertDescription>
+                        </Alert>
+                    )}
+
+                    {/* Error Alert */}
+                    {error && (
+                        <Alert variant="destructive" className="mb-6">
+                            <AlertTitle>Error</AlertTitle>
+                            <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                    )}
+
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Username:
+                            </label>
+                            <Input 
+                                type="text" 
+                                placeholder="Enter username" 
+                                {...register("username")} 
+                                className="w-full"
+                            />
+                            {errors.username && (
+                                <span className="text-red-500 text-sm mt-1 block">
+                                    {errors.username.message}
+                                </span>
+                            )}
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                First Name:
+                            </label>
+                            <Input 
+                                type="text" 
+                                placeholder="Enter first name" 
+                                {...register("firstName")} 
+                                className="w-full"
+                            />
+                            {errors.firstName && (
+                                <span className="text-red-500 text-sm mt-1 block">
+                                    {errors.firstName.message}
+                                </span>
+                            )}
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Last Name:
+                            </label>
+                            <Input 
+                                type="text" 
+                                placeholder="Enter last name" 
+                                {...register("lastName")} 
+                                className="w-full"
+                            />
+                            {errors.lastName && (
+                                <span className="text-red-500 text-sm mt-1 block">
+                                    {errors.lastName.message}
+                                </span>
+                            )}
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Email:
+                            </label>
+                            <Input 
+                                type="email" 
+                                placeholder="Enter email address" 
+                                className="w-full"
+                                {...register("email")} 
+                            />
+                            {errors.email && (
+                                <span className="text-red-500 text-sm mt-1 block">
+                                    {errors.email.message}
+                                </span>
+                            )}
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Role:
+                            </label>
+                            <Select 
+                                value={watchedValues.role}
+                                onValueChange={(value) => setValue('role', value)}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {ROLES.map(role => (
+                                        <SelectItem key={role} value={role}>
+                                            {role.replace('ROLE_', '')}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {errors.role && (
+                                <span className="text-red-500 text-sm mt-1 block">
+                                    {errors.role.message}
+                                </span>
+                            )}
+                        </div>
+                        
+                        <div className="flex items-center justify-end gap-3 pt-4 border-t">
+                            <Button 
+                                type="button" 
+                                onClick={handleCancel} 
+                                disabled={saving}
+                                variant="redDark"
+                            >
+                                Cancel
+                            </Button>
+                            <Button 
+                                type="submit" 
+                                disabled={saving || !hasChanges}
+                                variant="greenDark"
+                            >
+                                {saving ? 'Saving...' : 'Save Changes'}
+                            </Button>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
         </div>
     );
 }

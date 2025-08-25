@@ -1,7 +1,9 @@
 import React, { useState, useEffect, JSX } from 'react';
-import { useParams } from "react-router";
+import { useParams, NavLink } from "react-router";
 import { User as UserType } from '../../../../types';
 import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { ChevronLeft } from 'lucide-react';
 
 export function User(): JSX.Element {
     const { id } = useParams<{ id: string }>();
@@ -30,11 +32,7 @@ export function User(): JSX.Element {
     }, [id]);
 
     if (loading) {
-        return (
-            <div className="p-4">
-                <p>Loading user...</p>
-            </div>
-        );
+        return <div className="p-4 text-center">Loading user...</div>;
     }
 
     if (error) {
@@ -61,43 +59,88 @@ export function User(): JSX.Element {
     }
 
     return (
-        <div className="p-4 max-w-2xl mx-auto">
-            <div className="flex justify-between items-center mb-4">
-                <h2>User Details</h2>
-                <div className="flex gap-2">
-                    <Button
-                        onClick={() => window.location.href = `/admin/users/${user.id}/edit`}
-                        variant="yellow"
-                    >
-                        Edit User
-                    </Button>
-                    <Button
-                        onClick={() => window.location.href = '/admin/users'}
-                        variant="burgundy"
-                    >
-                        Back to Users
-                    </Button>
-                </div>
+        <div className="p-4 max-w-5xl mx-auto">
+            {/* Back Navigation */}
+            <div className="flex items-center text-sm text-gray-600 mb-4 mt-5">
+                <NavLink to="/admin/users" className="text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-2">
+                    <ChevronLeft className="w-4 h-4" />
+                    Back to All Users
+                </NavLink>
             </div>
-            
-            <div className="p-4 bg-gray-100 rounded-md border border-gray-300">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <p><strong>ID:</strong> {user.id}</p>
-                        <p><strong>Username:</strong> {user.username}</p>
-                        <p><strong>First Name:</strong> {user.firstName}</p>
-                        <p><strong>Last Name:</strong> {user.lastName}</p>
+
+            <Card className="max-w-3xl mx-auto">
+                <CardHeader className="border-b">
+                    <div className="flex justify-between items-center">
+                        <CardTitle className="text-2xl">
+                            User Details: {user.username}
+                        </CardTitle>
+                        <Button
+                            onClick={() => window.location.href = `/admin/users/${user.id}/edit`}
+                            variant="greenDark"
+                        >
+                            Edit User
+                        </Button>
                     </div>
-                    <div>
-                        <p><strong>Email:</strong> {user.email}</p>
-                        <p><strong>Role:</strong> 
-                            <span className="ml-2 px-2 py-1 rounded-md text-sm font-bold bg-gray-200 text-gray-800">
+                </CardHeader>
+                
+                <CardContent className="p-6">
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                ID:
+                            </label>
+                            <div className="text-gray-900 font-mono text-sm">
+                                {user.id}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Username:
+                            </label>
+                            <div className="text-gray-900">
+                                {user.username}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                First Name:
+                            </label>
+                            <div className="text-gray-900">
+                                {user.firstName}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Last Name:
+                            </label>
+                            <div className="text-gray-900">
+                                {user.lastName}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Email:
+                            </label>
+                            <div className="text-gray-900">
+                                {user.email}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Role:
+                            </label>
+                            <div className="text-gray-900">
                                 {user.role?.replace('ROLE_', '') || 'USER'}
-                            </span>
-                        </p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }

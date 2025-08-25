@@ -1,8 +1,9 @@
 import React from "react";
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate, NavLink } from 'react-router';
 import { ArticleForm } from "../admin/forms/ArticleForm";
 import type { Post } from "../../types";
 import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 
 export function EditMyArticle(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();
@@ -56,17 +57,20 @@ export function EditMyArticle(): React.JSX.Element {
   const isAdmin = role === 'ROLE_ADMIN';
 
   return (
-    <div>
-      <div className="p-4 max-w-5xl mx-auto">
-        <div className="mb-4">
-          <Button variant="burgundy" onClick={handleCancel}>
-            {isAdmin ? '← Back to Admin Articles' : '← Back to My Articles'}
-          </Button>
-        </div>
-        <h1 className="text-2xl font-bold mb-4">{isAdmin ? 'Edit Article' : 'Edit My Article'}</h1>
+    <div className="p-4 max-w-5xl mx-auto">
+      <div className="flex justify-between items-center mb-6 relative">
+        <NavLink
+          to="/public/posts"
+          className="text-gray-800 hover:text-gray-400 transition-colors"
+        >
+          <ChevronLeft className="w-8 h-8" />
+        </NavLink>
+        <h1 className="absolute left-1/2 transform -translate-x-1/2 bold font-extrabold text-3xl">
+          {isAdmin ? 'Edit Article' : 'Edit My Article'}
+        </h1>
+        <div></div> {/* Empty div for balance */}
       </div>
-      
-      <ArticleForm 
+      <ArticleForm
         articleId={id}
         mode="edit"
         onSave={(article) => handleSave(article as Post)}
@@ -74,4 +78,4 @@ export function EditMyArticle(): React.JSX.Element {
       />
     </div>
   );
-}
+  }

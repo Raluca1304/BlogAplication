@@ -3,6 +3,8 @@ import { NavLink, useParams } from "react-router";
 import { Comment as CommentType } from '../../../../types';
 import { CommentForm } from '../../forms/CommentForm';
 import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { ChevronLeft } from 'lucide-react';
 import { formatDateTime } from '../../utils/formatDataTime';
 
 export function Comment(): JSX.Element {
@@ -50,8 +52,8 @@ export function Comment(): JSX.Element {
 
     if (!comment) {
         return (
-            <div className="p-4">
-                <p>Loading comment...</p>
+            <div className="p-4 text-center">
+                Loading comment...
             </div>
         );
     }
@@ -70,42 +72,60 @@ export function Comment(): JSX.Element {
     }
 
     return (
-      <div className="p-4 max-w-2xl mx-auto mt-10">
-        {/* Actions */}
-        <div className="mb-4 flex justify-end">
-          <Button variant="greenDark" onClick={handleEditClick}>Edit Comment</Button>
-        </div>
-
-        {/* Structured card like PostDetail, with labeled fields */}
-        <div className="bg-white p-6 rounded-md border border-gray-300">
-          <h1 className="mb-4 text-2xl font-bold">Comment</h1>
-
-          <div className="grid grid-cols-1 md:grid-cols-[160px_1fr] gap-x-6 gap-y-3 text-sm">
-            <div className="text-gray-600">Author:</div>
-            <div className="font-medium">{comment.authorName || 'Anonymous'}</div>
-
-            <div className="text-gray-600">Article title:</div>
-            <div className="font-medium">
-              <NavLink to={`/public/posts/${comment.article.id}`} className="text-beige font-bold">
-                {comment.article.title}
-              </NavLink>
+        <div className="p-4 max-w-5xl mx-auto">
+            {/* Back Navigation */}
+            <div className="flex items-center text-sm text-gray-600 mb-4 mt-5">
+                <NavLink to="/admin/comments" className="text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-2">
+                    <ChevronLeft className="w-4 h-4" />
+                    Back to All Comments
+                </NavLink>
             </div>
 
-            <div className="text-gray-600">Created:</div>
-            <div className="font-medium">{formatDateTime(comment.createdDate)}</div>
-          </div>
+            <Card className="max-w-3xl mx-auto">
+                <CardHeader className="border-b">
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="text-2xl">
+                            Comment Details
+                        </CardTitle>
+                        <Button variant="greenDark" onClick={handleEditClick}>
+                            Edit Comment
+                        </Button>
+                    </div>
+                    
+                    {/* Article Info */}
+                    <div className="mt-4 p-4 bg-gray-50 rounded-md border">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                            <div>
+                                <span className="font-medium text-gray-700">Article:</span>
+                                <p className="text-gray-900">
+                                   
+                                        {comment.article.title}
 
-          <div className="mt-6">
-            <div className="text-sm text-gray-600 mb-2">Text:</div>
-            <div className="border border-gray-200 rounded-md p-4 bg-gray-50 whitespace-pre-wrap">
-              {comment.text}
-            </div>
-          </div>
-
-          <div className="mt-6 flex justify-end">
-            <Button variant="beige" onClick={() => window.history.back()}>Back</Button>
-          </div>
+                                </p>
+                            </div>
+                            <div>
+                                <span className="font-medium text-gray-700">Author:</span>
+                                <p className="text-gray-900">{comment.authorName || 'Anonymous'}</p>
+                            </div>
+                            <div>
+                                <span className="font-medium text-gray-700">Created:</span>
+                                <p className="text-gray-900">{formatDateTime(comment.createdDate)}</p>
+                            </div>
+                        </div>
+                    </div>
+                </CardHeader>
+                
+                <CardContent className="p-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Comment Text
+                        </label>
+                        <div className="w-full min-h-[120px] p-3 border border-gray-300 rounded-md bg-gray-50 whitespace-pre-wrap text-sm">
+                            {comment.text}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
-      </div>
     );
 }

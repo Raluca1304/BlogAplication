@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ChevronLeft } from 'lucide-react';
 const loginSchema = yup
   .object({
     username: yup.string().required('Username is required').min(3, 'Username must be at least 3 characters'),
@@ -123,7 +124,8 @@ export function RegisterForm({
   return (
     <Card className="p-7 mb-60">
       <CardHeader>
-        <CardTitle className="text-center">Register</CardTitle>
+        <CardTitle className="text-center">Create new account</CardTitle>
+        <CardDescription className="text-center">Please fill in the following fields to create a new account.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -202,7 +204,7 @@ export function RegisterForm({
         )}
       </div>
         <CardFooter className="px-0 flex gap-2">
-          <Button type="submit" variant="greenDark" className="w-full">Sign up</Button>
+          <Button type="submit" variant="greenDark" className="w-full">Create account</Button>
         </CardFooter>
         <CardFooter>
           <h2 className="text-center">
@@ -310,7 +312,14 @@ export function RegisterForm({
     return (
 
       <div className="flex justify-center items-center h-screen">
-        <div className="p-7 max-w-2xl mx-auto mt-10">
+        <div className="p-7 max-w-2xl mx-auto mt-10 relative">
+          {/* Back button */}
+          <div 
+            onClick={() => navigate(-1)}
+            className="cursor-pointer text-gray-800 hover:text-gray-400 transition-colors mb-4 inline-block"
+          >
+            <ChevronLeft className="w-10 h-10" />
+          </div>
           {errorMessage && (
             <div className="text-red-500 text-sm">
               {errorMessage}

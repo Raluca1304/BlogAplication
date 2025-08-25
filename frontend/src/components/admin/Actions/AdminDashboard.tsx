@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { roleUtils, DashboardStats } from '../../../types';
+    import {Users} from 'lucide-react';
 
 export function AdminDashboard() {
     const [stats, setStats] = useState<DashboardStats>({
@@ -50,21 +51,24 @@ export function AdminDashboard() {
             description: "Create, edit, view and delete articles",
             count: stats.articlesCount,
             link: "/admin/articles",
-            visible: true
+            visible: true,
+            icon: 'articles'
         },
         {
             title: "Manage Comments",
             description: "Moderate, edit and delete comments",
             count: stats.commentsCount,
             link: "/admin/comments",
-            visible: true
+            visible: true,
+            icon: 'comments'
         },
         {
             title: "Manage Users",
             description: "View, edit roles and manage user accounts",
             count: stats.usersCount,
             link: "/admin/users",
-            visible: roleUtils.canManageUsers(role)
+            visible: roleUtils.canManageUsers(role),
+            icon: 'users'
         }
     ];
 
@@ -79,17 +83,16 @@ export function AdminDashboard() {
                 <p className="text-gray-600">Welcome to the administration panel!  Manage your blog content and users.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 mb-10 mt-10 justify-center">
-                
+            <div className="flex flex-wrap justify-center gap-4 mb-10 mt-10">
                 {dashboardCards.filter(card => card.visible).map((card, index) => (
-                    <div
+                    <div    
+                        data-lucide-icon={card.icon}
                         key={index}
-                        className=" ml-100 justify-center bg-gray-100 border-gray-300 rounded-md p-4 shadow-md w-1/2  text-center"
+                        className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer text-center w-64"
                         onClick={() => window.location.href = card.link}
                     >
-                        <h3 className="text-lg">{card.title}</h3>
-                        <p className="text-gray-600">{card.description}</p>
-                        
+                        <h3 className="text-base font-semibold mb-2">{card.title}</h3>
+                        <p className="text-sm text-gray-600 mb-2">{card.description}</p>
                     </div>
                 ))}
             </div>

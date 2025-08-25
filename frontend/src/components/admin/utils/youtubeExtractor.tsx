@@ -1,5 +1,4 @@
 export default function YoutubeExtractor({id} : {id : string}) {
-
    return (
     <div className="w-full">
         <iframe 
